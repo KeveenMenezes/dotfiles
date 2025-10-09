@@ -29,7 +29,7 @@ bar=(
   padding_right=10
   padding_left=10
   corner_radius=$RADIUS
-  y_offset=3
+  y_offset=-10
   margin=5
   blur_radius=10
   notch_width=0
@@ -60,6 +60,7 @@ defaults=(
   popup.background.shadow.drawing=on
 )
 
+
 sketchybar --default "${defaults[@]}"
 
 # Left
@@ -82,5 +83,8 @@ pkill -f "aerospace_events.sh" 2>/dev/null
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
+
+## Animate the bar into place on startup (slide down)
+sketchybar --animate sin 30 --bar y_offset=10 y_offset=3
 
 echo "sketchybar configuation loaded.."
