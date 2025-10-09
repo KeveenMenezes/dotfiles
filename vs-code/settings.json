@@ -1,0 +1,371 @@
+{
+    "terminal.integrated.fontFamily": "Cascadia Code",
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.tabs.defaultIcon": "github-action",
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.suggest.selectionMode": "always",
+    "diffEditor.wordWrap": "on",
+    "editor.defaultFormatter": "ms-dotnettools.csdevkit",
+    "editor.linkedEditing": true,
+    "editor.fontFamily": "Cascadia Code",
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.wordWrap": "on",
+    "editor.wordWrapColumn": 120,
+    "editor.rulers": [100],
+    "editor.formatOnSave": true,
+    "editor.suggest.shareSuggestSelections": true,
+    "editor.suggest.showStatusBar": true,
+    "editor.suggest.snippetsPreventQuickSuggestions": true,
+    "editor.minimap.renderCharacters": false,
+    "editor.unicodeHighlight.nonBasicASCII": false,
+    "extensions.experimental.affinity": {
+        "vscodevim.vim": 1
+    },
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.ignoreRebaseWarning": true,
+    "git.enableSmartCommit": true,
+    "[go]": {
+        "editor.defaultFormatter": "golang.go"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "tailwindCSS.suggestions": true,
+        "editor.tabCompletion": "on"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "tailwindCSS.suggestions": true,
+        "editor.tabCompletion": "on"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "bradlc.vscode-tailwindcss",
+        "tailwindCSS.suggestions": true,
+        "editor.tabCompletion": "on"
+    },
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "[proto3]": {
+        "editor.defaultFormatter": "zxh404.vscode-proto3",
+        "editor.tabCompletion": "on"
+    },
+    "tailwindCSS.includeLanguages": {
+        "plaintext": "html"
+    },
+    "prettier.singleAttributePerLine": true,
+    "prettier.tabWidth": 4,
+    "prettier.vueIndentScriptAndStyle": true,
+    "powermode.explosions.frequency": 1,
+    "powermode.enabled": true,
+    "powermode.shake.intensity": 0,
+    "powermode.presets": "flames",
+    "powermode.combo.location": "off",
+    "powermode.combo.counterEnabled": "hide",
+    //Vim
+    "vim.autoindent": false,
+    "vim.camelCaseMotion.enable": true,
+    "vim.leader": "<space>",
+    "vim.smartRelativeLine": true,
+    "vim.hlsearch": true,
+    "vim.easymotion": true,
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.normalModeKeyBindings": [
+        // NAVIGATION
+        // switch b/w buffers
+        {
+            "before": ["<S-h>"],
+            "commands": [":bprevious"]
+        },
+        {
+            "before": ["<S-l>"],
+            "commands": [":bnext"]
+        },
+        {
+            "before": ["leader", "leader", "leader", "y"],
+            "commands": [
+                { "command": "workbench.action.closeAuxiliaryBar" },
+                { "command": "workbench.action.closeSidebar" },
+                { "command": "workbench.action.closePanel" }
+            ]
+        },
+        {
+            "before": ["leader", "c"],
+            "commands": [{ "command": "workbench.action.toggleCenteredLayout" }]
+        },
+        // panes
+        {
+            "before": ["leader", "h"],
+            "commands": ["workbench.action.focusLeftGroup"]
+        },
+        {
+            "before": ["leader", "j"],
+            "commands": ["workbench.action.focusBelowGroup"]
+        },
+        {
+            "before": ["leader", "k"],
+            "commands": ["workbench.action.focusAboveGroup"]
+        },
+        {
+            "before": ["leader", "l"],
+            "commands": ["workbench.action.focusRightGroup"]
+        },
+        {
+            "before": ["leader", "<S-h>"],
+            "commands": ["workbench.action.moveEditorToLeftGroup"]
+        },
+        {
+            "before": ["leader", "<S-j>"],
+            "commands": ["workbench.action.moveEditorToBelowGroup"]
+        },
+        {
+            "before": ["leader", "<S-k>"],
+            "commands": ["workbench.action.moveEditorToAboveGroup"]
+        },
+        {
+            "before": ["leader", "<S-l>"],
+            "commands": ["workbench.action.moveEditorToRightGroup"]
+        },
+        {
+            "before": ["<leader>", "m"],
+            "commands": ["bookmarks.toggle"]
+        },
+        {
+            "before": ["<leader>", "<S-m>"],
+            "after": [
+                "o",
+                "/",
+                "/",
+                "T",
+                "O",
+                "D",
+                "O",
+                ":",
+                " ",
+                "<esc>",
+                "space",
+                "m",
+                "a"
+            ]
+        },
+        {
+            "before": ["<leader>", "b"],
+            "commands": ["bookmarks.list"]
+        },
+        {
+            "before": ["<leader>", "r"],
+            "after": [":", "%", "s", "/"]
+        },
+        {
+            "before": ["<leader>", "<leader>", "d"], //run docker compose
+            "commands": ["editor.debug.action.runToCursor"]
+        },
+        {
+            "before": ["<leader>", "<leader>", "r"], //run file http
+            "commands": ["rest-client.request"]
+        },
+        {
+            "before": ["<leader>", "n"],
+            "commands": ["workbench.action.moveEditorToNewWindow"],
+            "when": ["activeEditor"]
+        },
+        {
+            "before": ["<C-d>"],
+            "after": ["<C-d>", "z", "z"]
+        },
+        {
+            "before": ["<C-u>"],
+            "after": ["<C-u>", "z", "z"]
+        },
+        {
+            "before": ["n"],
+            "after": ["n", "z", "z", "z", "v"]
+        },
+        {
+            "before": ["N"],
+            "after": ["N", "z", "z", "z", "v"]
+        }
+    ],
+    "vim.visualModeKeyBindings": [
+        {
+            "before": ["J"],
+            "after": [
+                ":",
+                "m",
+                " ",
+                "'",
+                ">",
+                "+",
+                "1",
+                "<CR>",
+                "g",
+                "v",
+                "=",
+                "g",
+                "v"
+            ]
+        },
+        {
+            "before": ["K"],
+            "after": [
+                ":",
+                "m",
+                " ",
+                "'",
+                "<",
+                "-",
+                "2",
+                "<CR>",
+                "g",
+                "v",
+                "=",
+                "g",
+                "v"
+            ]
+        }
+    ],
+    "workbench.productIconTheme": "material-product-icons",
+    "workbench.colorTheme": "Prom-Wiki",
+    "workbench.editor.tabSizingFixedMaxWidth": 200,
+    "workbench.activityBar.iconClickBehavior": "focus",
+    "mssql.connections": [],
+    "mssql.intelliSense.lowerCaseSuggestions": true,
+    "mssql.logDebugInfo": true,
+    "mssql.objectExplorer.groupBySchema": true,
+    "mssql.enableQueryHistoryCapture": false,
+    "mssql.enableRichExperiences": true,
+    "csharp.inlayHints.enableInlayHintsForImplicitVariableTypes": true,
+    "csharp.inlayHints.enableInlayHintsForTypes": true,
+    "dotnet.automaticallySyncWithActiveItem": true,
+    "dotnet.formatting.organizeImportsOnFormat": true,
+    "dotnet.inlayHints.enableInlayHintsForIndexerParameters": true,
+    "dotnet.inlayHints.enableInlayHintsForLiteralParameters": true,
+    "dotnet.inlayHints.enableInlayHintsForOtherParameters": true,
+    "dotnet.inlayHints.enableInlayHintsForParameters": true,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatDifferOnlyBySuffix": true,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchArgumentName": true,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchMethodIntent": true,
+    "dotnet.highlighting.highlightRelatedJsonComponents": true,
+    "razor.format.codeBlockBraceOnNextLine": true,
+    "razor.format.enable": false,
+    "testing.coverageToolbarEnabled": true,
+    "testing.alwaysRevealTestOnStateChange": true,
+    "github.copilot.advanced": {
+        "authProvider": "github"
+    },
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.startDebugging.enabled": true,
+    "github.copilot.chat.generateTests.codeLens": true,
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "github.copilot.chat.copilotDebugCommand.enabled": true,
+    "github.copilot.chat.localeOverride": "en",
+    "github.copilot.chat.terminalChatLocation": "quickChat",
+    "gitlens.hovers.currentLine.over": "line",
+    "gitlens.codeLens.scopes": ["document", "containers"],
+    "gitlens.statusBar.enabled": false,
+    "gitlens.views.scm.grouped.views": {
+        "commits": true,
+        "branches": true,
+        "remotes": true,
+        "stashes": true,
+        "tags": true,
+        "worktrees": true,
+        "contributors": true,
+        "repositories": true,
+        "searchAndCompare": true,
+        "launchpad": false
+    },
+    "gitlens.advanced.externalDiffTool": "vscode",
+    "window.density.editorTabHeight": "compact",
+    "todo-tree.general.debug": true,
+    "debug.toolBarLocation": "commandCenter",
+    "workbench.editor.tabSizing": "fixed",
+    "sonarlint.rules": {
+        "csharpsquid:S3881": {
+            "level": "off"
+        },
+        "csharpsquid:S1075": {
+            "level": "on"
+        },
+        "csharpsquid:S108": {
+            "level": "on"
+        },
+        "csharpsquid:S4035": {
+            "level": "on"
+        },
+        "csharpsquid:S2094": {
+            "level": "on"
+        },
+        "csharpsquid:S107": {
+            "level": "on"
+        }
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "mssql.connectionGroups": [
+        {
+            "name": "ROOT",
+            "id": "3610FF69-0E6F-4814-8EFE-D078A1379E11"
+        }
+    ],
+    "editor.accessibilitySupport": "off",
+    "leetcode.endpoint": "leetcode",
+    "leetcode.workspaceFolder": "/home/keveen/Documents/Projects/Studies/LeetCode",
+    "leetcode.hint.configWebviewMarkdown": false,
+    "leetcode.defaultLanguage": "golang",
+    "leetcode.hint.commentDescription": false,
+    "leetcode.hint.commandShortcut": false,
+    "window.confirmSaveUntitledWorkspace": false,
+    "workbench.navigationControl.enabled": false,
+    "github.copilot.selectedCompletionModel": "",
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": false,
+        "scminput": false,
+        "csharp": true
+    },
+    "terminal.external.windowsExec": "",
+    "database-client.autoSync": true,
+    "gitlens.views.commitDetails.files.layout": "list",
+    "git.blame.editorDecoration.enabled": false,
+    "[sql]": {
+        "editor.defaultFormatter": "cweijan.vscode-mysql-client2"
+    },
+    "go.toolsManagement.autoUpdate": true,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "database-client.showTrigger": true,
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "workbench.activityBar.location": "top",
+    "editor.minimap.enabled": false,
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.renderWhitespace": "all",
+    "workbench.externalBrowser": "chrome",
+    "files.autoSave": "afterDelay",
+    "vscode_vibrancy.preferedLightTheme": "Custom theme (use imports)",
+    "workbench.colorCustomizations": {
+        "terminal.background": "#00000000"
+    },
+    "window.titleBarStyle": "custom",
+    "workbench.startupEditor": "none",
+    "multiDiffEditor.experimental.enabled": false,
+    "vscode_vibrancy.forceFramelessWindow": true,
+    "diffEditor.ignoreTrimWhitespace": true,
+    "vscode_vibrancy.type": "fullscreen-ui",
+    "terminal.integrated.gpuAcceleration": "off",
+    "window.systemColorTheme": "dark",
+    "window.autoDetectColorScheme": false
+}
