@@ -161,8 +161,7 @@ alt-shift-semicolon = 'mode service'
 alt-shift-enter = 'mode apps'
 
 alt-o = 'exec-and-forget open -a /Applications/Obsidian.app'
-alt-i = 'exec-and-forget open -a /Applications/Visual Studio Code.app'
-
+alt-s = 'exec-and-forget open -a /Applications/Visual Studio Code.app'
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
