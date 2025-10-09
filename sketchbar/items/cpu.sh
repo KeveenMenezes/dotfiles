@@ -5,7 +5,7 @@ cpu_top=(
   label=CPU
   icon.drawing=off
   width=0
-  padding_right=15
+  padding_right=5
   y_offset=8
 )
 
@@ -13,8 +13,8 @@ cpu_percent=(
   label.font="$FONT:Heavy:12"
   label=CPU
   y_offset=-4
-  padding_right=5
-  width=55
+  padding_right=2
+  width=34
   icon.drawing=off
   update_freq=2
   mach_helper="$HELPER"
@@ -38,16 +38,16 @@ cpu_user=(
   background.drawing=on
 )
 
-sketchybar --add item cpu.top right              \
+sketchybar --add item cpu.top q              \
            --set cpu.top "${cpu_top[@]}"         \
                                                  \
-           --add item cpu.percent right          \
+           --add item cpu.percent q          \
            --set cpu.percent "${cpu_percent[@]}" \
                                                  \
-           --add graph cpu.sys right 75          \
+           --add graph cpu.sys q 75          \
            --set cpu.sys "${cpu_sys[@]}"         \
                                                  \
-           --add graph cpu.user right 75         \
+           --add graph cpu.user q 75         \
            --set cpu.user "${cpu_user[@]}"       \
                                                  \
            --add bracket cpu_group '/cpu\..*/'   \

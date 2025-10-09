@@ -14,9 +14,9 @@ spotify_anchor=(
   icon.font="$FONT:Regular:25.0"
   label.drawing=off
   drawing=on
-  padding_right=10
-  padding_left=10
-  y_offset=0
+  padding_right=20
+  padding_left=20
+  y_offset=1
 )
 
 spotify_cover=(
@@ -149,7 +149,7 @@ spotify_controls=(
 )
 
 sketchybar --add event spotify_change $SPOTIFY_EVENT             \
-           --add item spotify.anchor right \
+           --add item spotify.anchor e \
            --set spotify.anchor "${spotify_anchor[@]}"           \
            --add item spotify.cover popup.spotify.anchor         \
            --set spotify.cover "${spotify_cover[@]}"             \

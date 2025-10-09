@@ -5,13 +5,19 @@
 
 brew=(
   icon=􀐛
+  icon.padding_left=10
   label=?
-  padding_right=10
+  label.padding_right=10
+  padding_right=20
+  padding_left=15
   script="$PLUGIN_DIR/brew.sh"
+  background.color=$BACKGROUND_1
+  background.border_color=$BACKGROUND_2
+  background.border_width=0
 )
 
 sketchybar --add event brew_update \
-           --add item brew right   \
+           --add item brew q \
            --set brew "${brew[@]}" \
            --subscribe brew brew_update
 

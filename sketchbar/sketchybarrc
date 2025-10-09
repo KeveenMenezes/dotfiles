@@ -29,13 +29,13 @@ bar=(
   padding_right=10
   padding_left=10
   corner_radius=$RADIUS
-  y_offset=5
+  y_offset=3
   margin=5
   blur_radius=10
   notch_width=0
 )
 
-sketchybar --bar "${bar[@]}"
+sketchybar --bar "${bar[@]}" notch_width=200
 
 # Setting up default values
 defaults=(
