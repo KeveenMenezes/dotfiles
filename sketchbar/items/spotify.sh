@@ -10,6 +10,7 @@ spotify_anchor=(
   popup.align=center
   popup.height=150
   icon=􁁒
+  icon.color=$GREEN
   icon.font="$FONT:Regular:25.0"
   label.drawing=off
   drawing=on
