@@ -161,7 +161,7 @@ alt-shift-semicolon = 'mode service'
 alt-shift-enter = 'mode apps'
 
 alt-o = 'exec-and-forget open -a /Applications/Obsidian.app'
-alt-s = 'exec-and-forget open -a /Applications/Visual Studio Code.app'
+alt-i = 'exec-and-forget open -a /Applications/Visual Studio Code.app'
 
 
 # 'service' binding mode declaration.
@@ -173,6 +173,7 @@ f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling
 backspace = ['close-all-windows-but-current', 'mode main']
 
 [mode.apps.binding]
+esc = ['reload-config', 'mode main']
 # alt-w = ['exec-and-forget open -a /Applications/WezTerm.app', 'mode main']
 
 [workspace-to-monitor-force-assignment]
