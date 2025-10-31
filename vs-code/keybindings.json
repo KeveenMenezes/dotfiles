@@ -1,21 +1,5 @@
 [
     {
-        "key": "ctrl+enter",
-        "command": "workbench.action.terminal.sendSequence",
-        "when": "terminalFocus",
-        "args": {
-            "text": "\\\r\n"
-        }
-    },
-    {
-        "key": "shift+enter",
-        "command": "workbench.action.terminal.sendSequence",
-        "when": "terminalFocus",
-        "args": {
-            "text": "\\\r\n"
-        }
-    },
-    {
         "key": "ctrl+shift+f",
         "command": "workbench.action.findInFiles",
         "when": "editorTextFocus"
