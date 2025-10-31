@@ -85,6 +85,6 @@ pkill -f "aerospace_events.sh" 2>/dev/null
 sketchybar --update
 
 ## Animate the bar into place on startup (slide down)
-sketchybar --animate sin 30 --bar y_offset=10 y_offset=1
+sketchybar --animate sin 30 --bar y_offset=10 y_offset=2
 
 echo "sketchybar configuation loaded.."

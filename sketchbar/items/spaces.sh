@@ -17,7 +17,7 @@ do
                     icon.padding_left=10                              \
                     icon.padding_right=15                             \
                     icon.highlight_color=$BLUE                         \
-                    padding_left=2                                    \
+                    padding_left=5                                    \
                     padding_right=2                                   \
                     label.padding_right=20                            \
                     label.font="sketchybar-app-font:Regular:16.0" \   \
