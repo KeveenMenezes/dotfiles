@@ -236,16 +236,6 @@
             ]
         }
     ],
-    "workbench.productIconTheme": "material-product-icons",
-    "workbench.colorTheme": "Prom-Wiki",
-    "workbench.editor.tabSizingFixedMaxWidth": 200,
-    "workbench.activityBar.iconClickBehavior": "focus",
-    "mssql.connections": [],
-    "mssql.intelliSense.lowerCaseSuggestions": true,
-    "mssql.logDebugInfo": true,
-    "mssql.objectExplorer.groupBySchema": true,
-    "mssql.enableQueryHistoryCapture": false,
-    "mssql.enableRichExperiences": true,
     "csharp.inlayHints.enableInlayHintsForImplicitVariableTypes": true,
     "csharp.inlayHints.enableInlayHintsForTypes": true,
     "dotnet.automaticallySyncWithActiveItem": true,
@@ -292,7 +282,22 @@
     "window.density.editorTabHeight": "compact",
     "todo-tree.general.debug": true,
     "debug.toolBarLocation": "commandCenter",
+
+    "workbench.startupEditor": "welcomePage",
+    "workbench.externalBrowser": "chrome",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.activityBar.location": "top",
+    "workbench.navigationControl.enabled": false,
     "workbench.editor.tabSizing": "fixed",
+    "workbench.productIconTheme": "material-product-icons",
+    "workbench.colorTheme": "Prom-Wiki",
+    "workbench.editor.tabSizingFixedMaxWidth": 200,
+    "workbench.activityBar.iconClickBehavior": "focus",
+    "workbench.colorCustomizations": {
+        "editor.background": "#161616",
+        "tab.activeBackground": "#161616",
+        "terminal.background": "#00000000"
+    },
     "sonarlint.rules": {
         "csharpsquid:S3881": {
             "level": "off"
@@ -311,15 +316,12 @@
         },
         "csharpsquid:S107": {
             "level": "on"
+        },
+        "csharpsquid:S2139": {
+            "level": "on"
         }
     },
     "security.workspace.trust.untrustedFiles": "open",
-    "mssql.connectionGroups": [
-        {
-            "name": "ROOT",
-            "id": "3610FF69-0E6F-4814-8EFE-D078A1379E11"
-        }
-    ],
     "editor.accessibilitySupport": "off",
     "leetcode.endpoint": "leetcode",
     "leetcode.workspaceFolder": "/home/keveen/Documents/Projects/Studies/LeetCode",
@@ -328,7 +330,6 @@
     "leetcode.hint.commentDescription": false,
     "leetcode.hint.commandShortcut": false,
     "window.confirmSaveUntitledWorkspace": false,
-    "workbench.navigationControl.enabled": false,
     "github.copilot.selectedCompletionModel": "",
     "github.copilot.enable": {
         "*": true,
@@ -347,25 +348,31 @@
     "go.toolsManagement.autoUpdate": true,
     "github.copilot.nextEditSuggestions.enabled": true,
     "database-client.showTrigger": true,
-    "gitlens.ai.model": "vscode",
-    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
-    "workbench.activityBar.location": "top",
     "editor.minimap.enabled": false,
-    "workbench.iconTheme": "material-icon-theme",
     "editor.renderWhitespace": "all",
-    "workbench.externalBrowser": "chrome",
     "files.autoSave": "afterDelay",
-    "vscode_vibrancy.preferedLightTheme": "Custom theme (use imports)",
-    "workbench.colorCustomizations": {
-        "terminal.background": "#00000000"
-    },
+    "vscode_vibrancy.preferedLightTheme": "Dark (Only Subbar)",
     "window.titleBarStyle": "custom",
-    "workbench.startupEditor": "none",
     "multiDiffEditor.experimental.enabled": false,
     "vscode_vibrancy.forceFramelessWindow": true,
     "diffEditor.ignoreTrimWhitespace": true,
-    "vscode_vibrancy.type": "fullscreen-ui",
+    "vscode_vibrancy.preferedDarkTheme": "Dark (Only Subbar)",
+    "vscode_vibrancy.theme": "GitHub Dark Default",
     "terminal.integrated.gpuAcceleration": "off",
     "window.systemColorTheme": "dark",
-    "window.autoDetectColorScheme": false
+    "window.autoDetectColorScheme": false,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    "variable",
+                    "variable.other.readwrite",
+                    "meta.definition.variable.name"
+                ],
+                "settings": {
+                    "foreground": "#c4c4c4"
+                }
+            }
+        ]
+    }
 }

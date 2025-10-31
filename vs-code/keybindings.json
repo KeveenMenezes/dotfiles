@@ -1,5 +1,20 @@
-// Place your key bindings in this file to override the defaults
 [
+    {
+        "key": "ctrl+enter",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\\\r\n"
+        }
+    },
+    {
+        "key": "shift+enter",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\\\r\n"
+        }
+    },
     {
         "key": "ctrl+shift+f",
         "command": "workbench.action.findInFiles",
@@ -44,7 +59,10 @@
         "key": "ctrl+b",
         "command": "-workbench.action.toggleSidebarVisibility"
     },
-    { "key": "ctrl+shift+l", "command": "workbench.action.togglePanel" },
+    {
+        "key": "ctrl+shift+l",
+        "command": "workbench.action.togglePanel"
+    },
     {
         "key": "ctrl+j",
         "command": "-workbench.action.togglePanel"
