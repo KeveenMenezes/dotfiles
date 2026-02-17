@@ -59,6 +59,10 @@ run = 'layout floating'
 if.app-name-regex-substring = 'camera'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-id = 'com.apple.Terminal'
+run = ['layout floating']
+
 # Possible values: (qwerty|dvorak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]

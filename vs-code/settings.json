@@ -49,7 +49,7 @@
         "editor.tabCompletion": "on"
     },
     "[html]": {
-        "editor.defaultFormatter": "bradlc.vscode-tailwindcss",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "tailwindCSS.suggestions": true,
         "editor.tabCompletion": "on"
     },
@@ -59,9 +59,6 @@
     "[proto3]": {
         "editor.defaultFormatter": "zxh404.vscode-proto3",
         "editor.tabCompletion": "on"
-    },
-    "tailwindCSS.includeLanguages": {
-        "plaintext": "html"
     },
     "prettier.singleAttributePerLine": true,
     "prettier.tabWidth": 4,
@@ -252,14 +249,8 @@
     "razor.format.enable": false,
     "testing.coverageToolbarEnabled": true,
     "testing.alwaysRevealTestOnStateChange": true,
-    "github.copilot.advanced": {
-        "authProvider": "github"
-    },
     "github.copilot.chat.scopeSelection": true,
-    "github.copilot.chat.startDebugging.enabled": true,
     "github.copilot.chat.generateTests.codeLens": true,
-    "github.copilot.chat.editor.temporalContext.enabled": true,
-    "github.copilot.chat.edits.temporalContext.enabled": true,
     "github.copilot.chat.copilotDebugCommand.enabled": true,
     "github.copilot.chat.localeOverride": "en",
     "github.copilot.chat.terminalChatLocation": "quickChat",
@@ -282,22 +273,13 @@
     "window.density.editorTabHeight": "compact",
     "todo-tree.general.debug": true,
     "debug.toolBarLocation": "commandCenter",
-
-    "workbench.startupEditor": "welcomePage",
-    "workbench.externalBrowser": "chrome",
+    "workbench.externalBrowser": "atlas",
     "workbench.iconTheme": "material-icon-theme",
     "workbench.activityBar.location": "top",
-    "workbench.navigationControl.enabled": false,
     "workbench.editor.tabSizing": "fixed",
     "workbench.productIconTheme": "material-product-icons",
-    "workbench.colorTheme": "Prom-Wiki",
     "workbench.editor.tabSizingFixedMaxWidth": 200,
     "workbench.activityBar.iconClickBehavior": "focus",
-    "workbench.colorCustomizations": {
-        "editor.background": "#161616",
-        "tab.activeBackground": "#161616",
-        "terminal.background": "#00000000"
-    },
     "sonarlint.rules": {
         "csharpsquid:S3881": {
             "level": "off"
@@ -315,9 +297,12 @@
             "level": "on"
         },
         "csharpsquid:S107": {
-            "level": "on"
+            "level": "off"
         },
         "csharpsquid:S2139": {
+            "level": "on"
+        },
+        "csharpsquid:S2325": {
             "level": "on"
         }
     },
@@ -357,10 +342,7 @@
     "vscode_vibrancy.forceFramelessWindow": true,
     "diffEditor.ignoreTrimWhitespace": true,
     "vscode_vibrancy.preferedDarkTheme": "Dark (Only Subbar)",
-    "vscode_vibrancy.theme": "GitHub Dark Default",
-    "terminal.integrated.gpuAcceleration": "off",
-    "window.systemColorTheme": "dark",
-    "window.autoDetectColorScheme": false,
+    "vscode_vibrancy.theme": "Dark (Only Subbar)",
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
@@ -374,5 +356,29 @@
                 }
             }
         ]
-    }
+    },
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "debug.breakpointsView.presentation": "tree",
+    "scm.repositories.selectionMode": "single",
+    "scm.repositories.explorer": true,
+    "terminal.integrated.initialHint": false,
+    "chat.mcp.gallery.enabled": true,
+    "git.blame.statusBarItem.enabled": false,
+    "chat.tools.terminal.autoApprove": {
+        "dotnet test": true
+    },
+    "protobuf.protoc.path": "/Users/keveenmenezes/Library/Application Support/Code/User/globalStorage/drblury.protobuf-vsc/bin/protoc",
+    "chat.viewSessions.orientation": "stacked",
+    "workbench.startupEditor": "agentSessionsWelcomePage",
+    "github.copilot.chat.copilotMemory.enabled": true,
+    "chat.tools.terminal.sandbox.enabled": false,
+    "workbench.browser.openLocalhostLinks": true,
+    "simpleBrowser.useIntegratedBrowser": true,
+    "chat.agentsControl.enabled": false,
+    "workbench.panel.showLabels": false,
+    "workbench.colorTheme": "Prometheus Dark 2026",
+    "workbench.preferredDarkColorTheme": "Prometheus Dark 2026",
+    "chat.editing.confirmEditRequestRemoval": true,
+    "workbench.layoutControl.enabled": false
 }
