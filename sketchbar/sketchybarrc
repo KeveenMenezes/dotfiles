@@ -23,15 +23,15 @@ launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /
 bar=(
   height=30
   color=$BAR_COLOR
-  shadow=on
+  shadow=off
   position=top
   sticky=on
   padding_right=10
   padding_left=10
   corner_radius=$RADIUS
-  y_offset=-20
+  y_offset=0
   margin=0
-  blur_radius=10
+  blur_radius=0
   notch_width=0
 )
 
@@ -84,7 +84,7 @@ pkill -f "aerospace_events.sh" 2>/dev/null
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
 sketchybar --update
 
-## Animate the bar into place on startup (slide down)
-sketchybar --animate sin 30 --bar y_offset=10 y_offset=2
+## Keep bar pinned to the top to avoid background artifact lines
+sketchybar --bar y_offset=0
 
 echo "sketchybar configuation loaded.."

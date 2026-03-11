@@ -273,13 +273,16 @@
     "window.density.editorTabHeight": "compact",
     "todo-tree.general.debug": true,
     "debug.toolBarLocation": "commandCenter",
+    "workbench.startupEditor": "agentSessionsWelcomePage",
+    "workbench.layoutControl.enabled": false,
+    "workbench.colorTheme": "Prometheus Dark 2026",
     "workbench.externalBrowser": "atlas",
     "workbench.iconTheme": "material-icon-theme",
     "workbench.activityBar.location": "top",
-    "workbench.editor.tabSizing": "fixed",
-    "workbench.productIconTheme": "material-product-icons",
-    "workbench.editor.tabSizingFixedMaxWidth": 200,
     "workbench.activityBar.iconClickBehavior": "focus",
+    "workbench.productIconTheme": "material-product-icons",
+    "workbench.editor.tabSizing": "fixed",
+    "workbench.editor.tabSizingFixedMaxWidth": 200,
     "sonarlint.rules": {
         "csharpsquid:S3881": {
             "level": "off"
@@ -336,13 +339,8 @@
     "editor.minimap.enabled": false,
     "editor.renderWhitespace": "all",
     "files.autoSave": "afterDelay",
-    "vscode_vibrancy.preferedLightTheme": "Dark (Only Subbar)",
     "window.titleBarStyle": "custom",
-    "multiDiffEditor.experimental.enabled": false,
-    "vscode_vibrancy.forceFramelessWindow": true,
     "diffEditor.ignoreTrimWhitespace": true,
-    "vscode_vibrancy.preferedDarkTheme": "Dark (Only Subbar)",
-    "vscode_vibrancy.theme": "Dark (Only Subbar)",
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
@@ -363,22 +361,24 @@
     "scm.repositories.selectionMode": "single",
     "scm.repositories.explorer": true,
     "terminal.integrated.initialHint": false,
-    "chat.mcp.gallery.enabled": true,
     "git.blame.statusBarItem.enabled": false,
+    "chat.mcp.gallery.enabled": true,
     "chat.tools.terminal.autoApprove": {
-        "dotnet test": true
+        "dotnet test": true,
+        "dotnet package": true,
+        "dotnet build": true,
+        "ilspycmd": true
     },
     "protobuf.protoc.path": "/Users/keveenmenezes/Library/Application Support/Code/User/globalStorage/drblury.protobuf-vsc/bin/protoc",
     "chat.viewSessions.orientation": "stacked",
-    "workbench.startupEditor": "agentSessionsWelcomePage",
-    "github.copilot.chat.copilotMemory.enabled": true,
     "chat.tools.terminal.sandbox.enabled": false,
-    "workbench.browser.openLocalhostLinks": true,
-    "simpleBrowser.useIntegratedBrowser": true,
     "chat.agentsControl.enabled": false,
-    "workbench.panel.showLabels": false,
-    "workbench.colorTheme": "Prometheus Dark 2026",
-    "workbench.preferredDarkColorTheme": "Prometheus Dark 2026",
     "chat.editing.confirmEditRequestRemoval": true,
-    "workbench.layoutControl.enabled": false
+    "github.copilot.chat.copilotMemory.enabled": true,
+    "simpleBrowser.useIntegratedBrowser": true,
+    "workbench.panel.showLabels": false,
+    "workbench.browser.openLocalhostLinks": true,
+    "chat.autopilot.enabled": true,
+    "terminal.integrated.experimental.aiProfileGrouping": true,
+    "vscode-office.editorTheme": "Github Dark"
 }
