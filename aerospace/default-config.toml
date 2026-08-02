@@ -1,7 +1,7 @@
 after-startup-command = [
     'exec-and-forget open -a Ghostty',
     'exec-and-forget open -a Obsidian',
-    'exec-and-forget open -a Atlas',
+    'exec-and-forget open -a "ChatGPT Atlas"',
 ]
 
 exec-on-workspace-change = ['/bin/bash', '-c',
@@ -74,7 +74,7 @@ if.app-name-regex-substring = 'Ghostty'
 run = 'move-node-to-workspace code'
 
 [[on-window-detected]]
-if.app-id = 'com.openai.chat'
+if.app-id = 'com.openai.atlas'
 run = 'move-node-to-workspace web'
 
 [[on-window-detected]]
@@ -98,30 +98,11 @@ run = 'move-node-to-workspace music'
 
 [mode.main.binding]
 
-alt-shift-r = 'flatten-workspace-tree'
-alt-tab = 'workspace-back-and-forth'
-alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
-alt-shift-t = 'exec-and-forget open -a /Applications/Ghostty.app'
-alt-shift-c = 'reload-config'
-
-# See: https://nikitabobko.github.io/AeroSpace/commands#layout
-alt-f = 'fullscreen'
-alt-v = 'layout tiles vertical'
-alt-b = 'layout tiles horizontal'
-alt-a = 'layout accordion'
-alt-space = 'layout floating tiling'
-
 # See: https://nikitabobko.github.io/AeroSpace/commands#focus
 alt-h = 'focus left'
 alt-j = 'focus down'
 alt-k = 'focus up'
 alt-l = 'focus right'
-
-# See: https://nikitabobko.github.io/AeroSpace/commands#move
-alt-shift-h = 'move left'
-alt-shift-j = 'move down'
-alt-shift-k = 'move up'
-alt-shift-l = 'move right'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
 alt-0 = 'workspace web'
@@ -135,27 +116,21 @@ alt-7 = 'workspace observability'
 alt-8 = 'workspace obsidian'
 alt-9 = 'workspace scratch'
 
-# See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-shift-0 = 'move-node-to-workspace web --focus-follows-window'
-alt-shift-1 = 'move-node-to-workspace code --focus-follows-window'
-alt-shift-2 = 'move-node-to-workspace infra --focus-follows-window'
-alt-shift-3 = 'move-node-to-workspace term --focus-follows-window'
-alt-shift-4 = 'move-node-to-workspace chat --focus-follows-window'
-alt-shift-5 = 'move-node-to-workspace devops --focus-follows-window'
-alt-shift-6 = 'move-node-to-workspace music --focus-follows-window'
-alt-shift-7 = 'move-node-to-workspace observability --focus-follows-window'
-alt-shift-8 = 'move-node-to-workspace obsidian --focus-follows-window'
-alt-shift-9 = 'move-node-to-workspace scratch --focus-follows-window'
-
 alt-s = 'mode service'
 alt-r = 'mode resize'
+alt-w = 'mode windows'
+alt-m = 'mode move'
 
 alt-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/study/dotfiles/aerospace/scripts/infra.sh'
 
 [mode.service.binding]
-esc = ['reload-config', 'mode main']
-r = ['flatten-workspace-tree', 'mode main'] # reset layout
-backspace = ['close-all-windows-but-current', 'mode main']
+esc = 'mode main'
+r = ['reload-config', 'mode main']
+t = ['exec-and-forget open -a /Applications/Ghostty.app', 'mode main']
+c = ['exec-and-forget open -a "Visual Studio Code"', 'mode main']
+o = ['exec-and-forget open -a Obsidian', 'mode main']
+a = ['exec-and-forget open -a "ChatGPT Atlas"', 'mode main']
+f = ['exec-and-forget open -a Finder', 'mode main']
 
 [mode.resize.binding]
 h = 'resize width -50'
@@ -164,3 +139,39 @@ j = 'resize height +50'
 k = 'resize height -50'
 enter = 'mode main'
 esc = 'mode main'
+
+[mode.windows.binding]
+esc = 'mode main'
+
+# See: https://nikitabobko.github.io/AeroSpace/commands#layout
+f = ['fullscreen', 'mode main']
+v = ['layout tiles vertical', 'mode main']
+b = ['layout tiles horizontal', 'mode main']
+a = ['layout accordion', 'mode main']
+space = ['layout floating tiling', 'mode main']
+
+# See: https://nikitabobko.github.io/AeroSpace/commands#move
+h = ['move left', 'mode main']
+j = ['move down', 'mode main']
+k = ['move up', 'mode main']
+l = ['move right', 'mode main']
+
+r = ['flatten-workspace-tree', 'mode main'] # reset layout
+backspace = ['close-all-windows-but-current', 'mode main']
+tab = ['workspace-back-and-forth', 'mode main']
+shift-tab = ['move-workspace-to-monitor --wrap-around next', 'mode main']
+
+[mode.move.binding]
+esc = 'mode main'
+
+# See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
+d = ['move-node-to-workspace web --focus-follows-window', 'mode main']
+g = ['move-node-to-workspace code --focus-follows-window', 'mode main']
+m = ['move-node-to-workspace infra --focus-follows-window', 'mode main']
+b = ['move-node-to-workspace term --focus-follows-window', 'mode main']
+s = ['move-node-to-workspace chat --focus-follows-window', 'mode main']
+t = ['move-node-to-workspace devops --focus-follows-window', 'mode main']
+n = ['move-node-to-workspace music --focus-follows-window', 'mode main']
+c = ['move-node-to-workspace observability --focus-follows-window', 'mode main']
+l = ['move-node-to-workspace obsidian --focus-follows-window', 'mode main']
+p = ['move-node-to-workspace scratch --focus-follows-window', 'mode main']

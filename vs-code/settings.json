@@ -1,6 +1,12 @@
 {
-    "terminal.integrated.fontFamily": "Cascadia Code",
+    "terminal.integrated.fontFamily": "Cascadia Code NF",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.defaultProfile.osx": "nushell",
+    "terminal.integrated.profiles.osx": {
+        "nushell": {
+            "path": "/opt/homebrew/bin/nu",
+        },
+    },
     "terminal.integrated.tabs.defaultIcon": "github-action",
     "terminal.integrated.fontSize": 13,
     "terminal.integrated.suggest.selectionMode": "always",
@@ -20,45 +26,45 @@
     "editor.minimap.renderCharacters": false,
     "editor.unicodeHighlight.nonBasicASCII": false,
     "extensions.experimental.affinity": {
-        "vscodevim.vim": 1
+        "vscodevim.vim": 1,
     },
     "git.autofetch": true,
     "git.confirmSync": false,
     "git.ignoreRebaseWarning": true,
     "git.enableSmartCommit": true,
     "[go]": {
-        "editor.defaultFormatter": "golang.go"
+        "editor.defaultFormatter": "golang.go",
     },
     "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[jsonc]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[scss]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "tailwindCSS.suggestions": true,
-        "editor.tabCompletion": "on"
+        "editor.tabCompletion": "on",
     },
     "[css]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "tailwindCSS.suggestions": true,
-        "editor.tabCompletion": "on"
+        "editor.tabCompletion": "on",
     },
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "tailwindCSS.suggestions": true,
-        "editor.tabCompletion": "on"
+        "editor.tabCompletion": "on",
     },
     "[csharp]": {
-        "editor.defaultFormatter": "ms-dotnettools.csharp"
+        "editor.defaultFormatter": "ms-dotnettools.csharp",
     },
     "[proto3]": {
         "editor.defaultFormatter": "zxh404.vscode-proto3",
-        "editor.tabCompletion": "on"
+        "editor.tabCompletion": "on",
     },
     "prettier.singleAttributePerLine": true,
     "prettier.tabWidth": 4,
@@ -80,64 +86,48 @@
     "vim.useSystemClipboard": true,
     "vim.useCtrlKeys": true,
     "vim.normalModeKeyBindings": [
-        // NAVIGATION
-        // switch b/w buffers
+        // buffers agora ficam no ctrl+h/ctrl+l (keybindings.json)
+        // ui (janelas/splits agora ficam no ctrl+w do keybindings.json)
         {
-            "before": ["<S-h>"],
-            "commands": [":bprevious"]
-        },
-        {
-            "before": ["<S-l>"],
-            "commands": [":bnext"]
-        },
-        {
-            "before": ["leader", "leader", "leader", "y"],
+            "before": ["<leader>", "u", "z"],
             "commands": [
-                { "command": "workbench.action.closeAuxiliaryBar" },
-                { "command": "workbench.action.closeSidebar" },
-                { "command": "workbench.action.closePanel" }
-            ]
+                { "command": "workbench.action.toggleCenteredLayout" },
+            ],
+        },
+        // code
+        {
+            "before": ["<leader>", "c", "a"],
+            "commands": ["editor.action.quickFix"],
         },
         {
-            "before": ["leader", "c"],
-            "commands": [{ "command": "workbench.action.toggleCenteredLayout" }]
+            "before": ["<leader>", "c", "r"],
+            "commands": ["editor.action.rename"],
         },
-        // panes
+        // tests
         {
-            "before": ["leader", "h"],
-            "commands": ["workbench.action.focusLeftGroup"]
-        },
-        {
-            "before": ["leader", "j"],
-            "commands": ["workbench.action.focusBelowGroup"]
+            "before": ["<leader>", "t", "t"],
+            "commands": ["testing.runAtCursor"],
         },
         {
-            "before": ["leader", "k"],
-            "commands": ["workbench.action.focusAboveGroup"]
+            "before": ["<leader>", "t", "d"],
+            "commands": ["testing.debugAtCursor"],
         },
         {
-            "before": ["leader", "l"],
-            "commands": ["workbench.action.focusRightGroup"]
+            "before": ["<leader>", "t", "f"],
+            "commands": ["testing.runCurrentFile"],
         },
         {
-            "before": ["leader", "<S-h>"],
-            "commands": ["workbench.action.moveEditorToLeftGroup"]
+            "before": ["<leader>", "t", "a"],
+            "commands": ["testing.runAll"],
         },
         {
-            "before": ["leader", "<S-j>"],
-            "commands": ["workbench.action.moveEditorToBelowGroup"]
+            "before": ["<leader>", "t", "l"],
+            "commands": ["testing.reRunLastRun"],
         },
-        {
-            "before": ["leader", "<S-k>"],
-            "commands": ["workbench.action.moveEditorToAboveGroup"]
-        },
-        {
-            "before": ["leader", "<S-l>"],
-            "commands": ["workbench.action.moveEditorToRightGroup"]
-        },
+        // bookmarks
         {
             "before": ["<leader>", "m"],
-            "commands": ["bookmarks.toggle"]
+            "commands": ["bookmarks.toggle"],
         },
         {
             "before": ["<leader>", "<S-m>"],
@@ -154,46 +144,41 @@
                 "<esc>",
                 "space",
                 "m",
-                "a"
-            ]
+                "a",
+            ],
         },
         {
             "before": ["<leader>", "b"],
-            "commands": ["bookmarks.list"]
+            "commands": ["bookmarks.list"],
         },
         {
             "before": ["<leader>", "r"],
-            "after": [":", "%", "s", "/"]
+            "after": [":", "%", "s", "/"],
         },
         {
             "before": ["<leader>", "<leader>", "d"], //run docker compose
-            "commands": ["editor.debug.action.runToCursor"]
+            "commands": ["editor.debug.action.runToCursor"],
         },
         {
             "before": ["<leader>", "<leader>", "r"], //run file http
-            "commands": ["rest-client.request"]
-        },
-        {
-            "before": ["<leader>", "n"],
-            "commands": ["workbench.action.moveEditorToNewWindow"],
-            "when": ["activeEditor"]
+            "commands": ["rest-client.request"],
         },
         {
             "before": ["<C-d>"],
-            "after": ["<C-d>", "z", "z"]
+            "after": ["<C-d>", "z", "z"],
         },
         {
             "before": ["<C-u>"],
-            "after": ["<C-u>", "z", "z"]
+            "after": ["<C-u>", "z", "z"],
         },
         {
             "before": ["n"],
-            "after": ["n", "z", "z", "z", "v"]
+            "after": ["n", "z", "z", "z", "v"],
         },
         {
             "before": ["N"],
-            "after": ["N", "z", "z", "z", "v"]
-        }
+            "after": ["N", "z", "z", "z", "v"],
+        },
     ],
     "vim.visualModeKeyBindings": [
         {
@@ -211,8 +196,8 @@
                 "v",
                 "=",
                 "g",
-                "v"
-            ]
+                "v",
+            ],
         },
         {
             "before": ["K"],
@@ -229,9 +214,9 @@
                 "v",
                 "=",
                 "g",
-                "v"
-            ]
-        }
+                "v",
+            ],
+        },
     ],
     "csharp.inlayHints.enableInlayHintsForImplicitVariableTypes": true,
     "csharp.inlayHints.enableInlayHintsForTypes": true,
@@ -267,14 +252,13 @@
         "contributors": true,
         "repositories": true,
         "searchAndCompare": true,
-        "launchpad": false
+        "launchpad": false,
     },
     "gitlens.advanced.externalDiffTool": "vscode",
     "window.density.editorTabHeight": "compact",
     "todo-tree.general.debug": true,
     "debug.toolBarLocation": "commandCenter",
     "workbench.startupEditor": "agentSessionsWelcomePage",
-    "workbench.layoutControl.enabled": false,
     "workbench.colorTheme": "Prometheus Dark 2026",
     "workbench.externalBrowser": "atlas",
     "workbench.iconTheme": "material-icon-theme",
@@ -285,29 +269,29 @@
     "workbench.editor.tabSizingFixedMaxWidth": 200,
     "sonarlint.rules": {
         "csharpsquid:S3881": {
-            "level": "off"
+            "level": "off",
         },
         "csharpsquid:S1075": {
-            "level": "on"
+            "level": "on",
         },
         "csharpsquid:S108": {
-            "level": "on"
+            "level": "on",
         },
         "csharpsquid:S4035": {
-            "level": "on"
+            "level": "on",
         },
         "csharpsquid:S2094": {
-            "level": "on"
+            "level": "on",
         },
         "csharpsquid:S107": {
-            "level": "off"
+            "level": "off",
         },
         "csharpsquid:S2139": {
-            "level": "on"
+            "level": "on",
         },
         "csharpsquid:S2325": {
-            "level": "on"
-        }
+            "level": "on",
+        },
     },
     "security.workspace.trust.untrustedFiles": "open",
     "editor.accessibilitySupport": "off",
@@ -324,14 +308,14 @@
         "plaintext": true,
         "markdown": false,
         "scminput": false,
-        "csharp": true
+        "csharp": true,
     },
     "terminal.external.windowsExec": "",
     "database-client.autoSync": true,
     "gitlens.views.commitDetails.files.layout": "list",
     "git.blame.editorDecoration.enabled": false,
     "[sql]": {
-        "editor.defaultFormatter": "cweijan.vscode-mysql-client2"
+        "editor.defaultFormatter": "cweijan.vscode-mysql-client2",
     },
     "go.toolsManagement.autoUpdate": true,
     "github.copilot.nextEditSuggestions.enabled": true,
@@ -347,13 +331,13 @@
                 "scope": [
                     "variable",
                     "variable.other.readwrite",
-                    "meta.definition.variable.name"
+                    "meta.definition.variable.name",
                 ],
                 "settings": {
-                    "foreground": "#c4c4c4"
-                }
-            }
-        ]
+                    "foreground": "#c4c4c4",
+                },
+            },
+        ],
     },
     "gitlens.ai.model": "vscode",
     "gitlens.ai.vscode.model": "copilot:gpt-4.1",
@@ -367,7 +351,7 @@
         "dotnet test": true,
         "dotnet package": true,
         "dotnet build": true,
-        "ilspycmd": true
+        "ilspycmd": true,
     },
     "protobuf.protoc.path": "/Users/keveenmenezes/Library/Application Support/Code/User/globalStorage/drblury.protobuf-vsc/bin/protoc",
     "chat.viewSessions.orientation": "stacked",
@@ -380,5 +364,37 @@
     "workbench.browser.openLocalhostLinks": true,
     "chat.autopilot.enabled": true,
     "terminal.integrated.experimental.aiProfileGrouping": true,
-    "vscode-office.editorTheme": "Github Dark"
+    "vscode-office.editorTheme": "Github Dark",
+    "chat.instructionsFilesLocations": {
+        ".github/instructions": true,
+        ".claude/rules": true,
+        "~/.copilot/instructions": true,
+        "~/.claude/rules": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-collections-post-response.instructions.md": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-collections-pre-request.instructions.md": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-folder-post-response.instructions.md": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-folder-pre-request.instructions.md": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-http-request-post-response.instructions.md": true,
+        "/var/folders/rg/1c_3c8hs5tlgzvzh9f9pt2kr0000gn/T/postman-http-request-pre-request.instructions.md": true,
+    },
+    "claudeCode.preferredLocation": "panel",
+    "terminal.integrated.enableVisualBell": true,
+    "yaml.disableSchemaDetection": [
+        "**/.github/workflows/*.yml",
+        "**/.github/workflows/*.yaml",
+        "**/.gitea/workflows/*.yml",
+        "**/.gitea/workflows/*.yaml",
+        "**/.forgejo/workflows/*.yml",
+        "**/.forgejo/workflows/*.yaml",
+    ],
+    "terminal.integrated.tabs.enabled": false,
+    "workbench.browser.showInTitleBar": true,
+    "chat.titleBar.openInAgentsWindow.enabled": false,
+    "workbench.layoutControl.enabled": false,
+    "workbench.navigationControl.enabled": false,
+    "amazonQ.suppressPrompts": {
+        "amazonQChatDisclaimer": true,
+    },
+    "workbench.experimental.modernUI": true,
+    "docker.extension.enableComposeLanguageServer": false,
 }
