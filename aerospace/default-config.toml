@@ -121,7 +121,7 @@ alt-r = 'mode resize'
 alt-w = 'mode windows'
 alt-m = 'mode move'
 
-alt-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/study/dotfiles/aerospace/scripts/infra.sh'
+alt-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/dotfiles/aerospace/scripts/infra.sh'
 
 [mode.service.binding]
 esc = 'mode main'

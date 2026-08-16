@@ -7,131 +7,131 @@
     // ctrl+w = navegar | ctrl+shift+w = mover o editor na direção
     {
         "key": "ctrl+w h",
-        "command": "workbench.action.focusLeftGroup",
+        "command": "workbench.action.focusLeftGroup"
     },
     {
         "key": "ctrl+w j",
-        "command": "workbench.action.focusBelowGroup",
+        "command": "workbench.action.focusBelowGroup"
     },
     {
         "key": "ctrl+w k",
-        "command": "workbench.action.focusAboveGroup",
+        "command": "workbench.action.focusAboveGroup"
     },
     {
         "key": "ctrl+w l",
-        "command": "workbench.action.focusRightGroup",
+        "command": "workbench.action.focusRightGroup"
     },
     {
         "key": "ctrl+shift+w h",
-        "command": "workbench.action.moveEditorToLeftGroup",
+        "command": "workbench.action.moveEditorToLeftGroup"
     },
     {
         "key": "ctrl+shift+w j",
-        "command": "workbench.action.moveEditorToBelowGroup",
+        "command": "workbench.action.moveEditorToBelowGroup"
     },
     {
         "key": "ctrl+shift+w k",
-        "command": "workbench.action.moveEditorToAboveGroup",
+        "command": "workbench.action.moveEditorToAboveGroup"
     },
     {
         "key": "ctrl+shift+w l",
-        "command": "workbench.action.moveEditorToRightGroup",
+        "command": "workbench.action.moveEditorToRightGroup"
     },
     {
         "key": "ctrl+w v",
-        "command": "workbench.action.splitEditorRight",
+        "command": "workbench.action.splitEditorRight"
     },
     {
         "key": "ctrl+w s",
-        "command": "workbench.action.splitEditorDown",
+        "command": "workbench.action.splitEditorDown"
     },
     {
         "key": "ctrl+w q",
-        "command": "workbench.action.closeEditorsAndGroup",
+        "command": "workbench.action.closeEditorsAndGroup"
     },
     {
         "key": "ctrl+w o",
-        "command": "workbench.action.closeEditorsInOtherGroups",
+        "command": "workbench.action.closeEditorsInOtherGroups"
     },
     {
         "key": "ctrl+w e",
-        "command": "workbench.action.evenEditorWidths",
+        "command": "workbench.action.evenEditorWidths"
     },
     {
         "key": "ctrl+w n",
-        "command": "workbench.action.moveEditorToNewWindow",
+        "command": "workbench.action.moveEditorToNewWindow"
     },
     // libera o ctrl+w como prefixo (vim e defaults do VS Code)
     {
         "key": "ctrl+w",
         "command": "-extension.vim_ctrl+w",
-        "when": "editorTextFocus && vim.active && vim.use<C-w> && !inDebugRepl",
+        "when": "editorTextFocus && vim.active && vim.use<C-w> && !inDebugRepl"
     },
     {
         "key": "ctrl+w",
         "command": "-workbench.action.closeGroup",
-        "when": "activeEditorGroupEmpty && multipleEditorGroups",
+        "when": "activeEditorGroupEmpty && multipleEditorGroups"
     },
     {
         "key": "ctrl+w",
         "command": "-workbench.action.terminal.killEditor",
-        "when": "terminalEditorFocus && terminalFocus && terminalHasBeenCreated || terminalEditorFocus && terminalFocus && terminalProcessSupported",
+        "when": "terminalEditorFocus && terminalFocus && terminalHasBeenCreated || terminalEditorFocus && terminalFocus && terminalProcessSupported"
     },
 
     // ── Terminal (ctrl+t) ─────────────────────────────────────────────────
     {
         "key": "ctrl+t t",
-        "command": "workbench.action.terminal.toggleTerminal",
+        "command": "workbench.action.terminal.toggleTerminal"
     },
     {
         "key": "ctrl+t n",
         "command": "workbench.action.terminal.new",
-        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile",
+        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
     },
     {
         "key": "ctrl+t d",
-        "command": "workbench.action.terminal.kill",
+        "command": "workbench.action.terminal.kill"
     },
     {
         "key": "ctrl+t j",
         "command": "workbench.action.terminal.focusNext",
-        "when": "terminalHasBeenCreated || terminalProcessSupported",
+        "when": "terminalHasBeenCreated || terminalProcessSupported"
     },
     {
         "key": "ctrl+t k",
         "command": "workbench.action.terminal.focusPrevious",
-        "when": "terminalHasBeenCreated || terminalProcessSupported",
+        "when": "terminalHasBeenCreated || terminalProcessSupported"
     },
     // picker de terminais (digita p/ filtrar, Enter troca)
     {
         "key": "ctrl+t s",
         "command": "workbench.action.quickOpenTerm",
-        "when": "terminalHasBeenCreated || terminalProcessSupported",
+        "when": "terminalHasBeenCreated || terminalProcessSupported"
     },
     {
         "key": "ctrl+t w",
         "command": "workbench.action.terminal.moveIntoNewWindow",
-        "when": "terminalHasBeenCreated && terminalIsOpen || terminalIsOpen && terminalProcessSupported",
+        "when": "terminalHasBeenCreated && terminalIsOpen || terminalIsOpen && terminalProcessSupported"
     },
     {
         "key": "ctrl+shift+`",
         "command": "-workbench.action.terminal.new",
-        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile",
+        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
     },
 
     // ── UI / painéis (ctrl+shift + direção) ───────────────────────────────
     // h = sidebar (esquerda), l = barra auxiliar (direita), j = painel (baixo), k = fecha tudo
     {
         "key": "ctrl+shift+h",
-        "command": "workbench.action.toggleSidebarVisibility",
+        "command": "workbench.action.toggleSidebarVisibility"
     },
     {
         "key": "ctrl+shift+l",
-        "command": "workbench.action.toggleAuxiliaryBar",
+        "command": "workbench.action.toggleAuxiliaryBar"
     },
     {
         "key": "ctrl+shift+j",
-        "command": "workbench.action.togglePanel",
+        "command": "workbench.action.togglePanel"
     },
     {
         "key": "ctrl+shift+k",
@@ -140,63 +140,63 @@
             "commands": [
                 "workbench.action.closeSidebar",
                 "workbench.action.closeAuxiliaryBar",
-                "workbench.action.closePanel",
-            ],
-        },
+                "workbench.action.closePanel"
+            ]
+        }
     },
     {
         "key": "ctrl+b",
-        "command": "-workbench.action.toggleSidebarVisibility",
+        "command": "-workbench.action.toggleSidebarVisibility"
     },
     {
         "key": "ctrl+j",
-        "command": "-workbench.action.togglePanel",
+        "command": "-workbench.action.togglePanel"
     },
     {
         "key": "ctrl+alt+b",
-        "command": "-workbench.action.toggleAuxiliaryBar",
+        "command": "-workbench.action.toggleAuxiliaryBar"
     },
 
     // ── Claude (ctrl+a) — IA principal ────────────────────────────────────
     // foca a lista de sessões do Claude (histórico Local/Web), ancorada no painel de baixo
     {
         "key": "ctrl+a a",
-        "command": "claudeVSCodeSessionsList.focus",
+        "command": "claudeVSCodeSessionsList.focus"
     },
     {
         "key": "ctrl+a e",
-        "command": "claude-vscode.primaryEditor.open",
+        "command": "claude-vscode.primaryEditor.open"
     },
     {
         "key": "ctrl+a m",
-        "command": "claude-vscode.insertAtMention",
+        "command": "claude-vscode.insertAtMention"
     },
     {
         "key": "ctrl+a y",
-        "command": "claude-vscode.acceptProposedDiff",
+        "command": "claude-vscode.acceptProposedDiff"
     },
     {
         "key": "ctrl+a r",
-        "command": "claude-vscode.rejectProposedDiff",
+        "command": "claude-vscode.rejectProposedDiff"
     },
     // desvincula os atalhos de chat do Copilot
     {
         "key": "cmd+i",
-        "command": "-inlineChat.start",
+        "command": "-inlineChat.start"
     },
     {
         "key": "shift+cmd+i",
-        "command": "-workbench.action.chat.openEditSession",
+        "command": "-workbench.action.chat.openEditSession"
     },
     {
         "key": "ctrl+cmd+i",
-        "command": "-workbench.action.chat.open",
+        "command": "-workbench.action.chat.open"
     },
 
     // ── Git / GitLens (ctrl+g) ────────────────────────────────────────────
     {
         "key": "ctrl+g g",
-        "command": "workbench.view.scm",
+        "command": "workbench.view.scm"
     },
     // foca direto a árvore de Changes (view -> pula a caixa de commit)
     {
@@ -205,51 +205,51 @@
         "args": {
             "commands": [
                 "workbench.scm.focus",
-                "workbench.scm.action.focusNextResourceGroup",
-            ],
-        },
+                "workbench.scm.action.focusNextResourceGroup"
+            ]
+        }
     },
     {
         "key": "ctrl+g c",
-        "command": "git.commit",
+        "command": "git.commit"
     },
     {
         "key": "ctrl+g p",
-        "command": "git.push",
+        "command": "git.push"
     },
     {
         "key": "ctrl+g f",
-        "command": "git.pull",
+        "command": "git.pull"
     },
     {
         "key": "ctrl+g b",
-        "command": "gitlens.toggleFileBlame",
+        "command": "gitlens.toggleFileBlame"
     },
     {
         "key": "ctrl+g h",
-        "command": "gitlens.showQuickFileHistory",
+        "command": "gitlens.showQuickFileHistory"
     },
     {
         "key": "ctrl+g v",
-        "command": "gitlens.showGraph",
+        "command": "gitlens.showGraph"
     },
 
     // ── Docker / ferramentas (ctrl+q) ─────────────────────────────────────
     {
         "key": "ctrl+q d",
-        "command": "workbench.view.extension.containersView",
+        "command": "workbench.view.extension.containersView"
     },
     {
         "key": "ctrl+q u",
-        "command": "vscode-containers.compose.up",
+        "command": "vscode-containers.compose.up"
     },
     {
         "key": "ctrl+q shift+u",
-        "command": "vscode-containers.compose.down",
+        "command": "vscode-containers.compose.down"
     },
     {
         "key": "ctrl+q t",
-        "command": "workbench.view.testing.focus",
+        "command": "workbench.view.testing.focus"
     },
 
     // ── Abas / buffers (ctrl+h / ctrl+l) ──────────────────────────────────
@@ -257,137 +257,151 @@
     {
         "key": "ctrl+h",
         "command": "workbench.action.previousEditor",
-        "when": "!terminalFocus",
+        "when": "!terminalFocus"
     },
     {
         "key": "ctrl+l",
         "command": "workbench.action.nextEditor",
-        "when": "!terminalFocus",
+        "when": "!terminalFocus"
     },
 
     // ── Navegação / busca (diretos) ───────────────────────────────────────
     {
         "key": "ctrl+e",
-        "command": "solutionExplorer.focus",
+        "command": "solutionExplorer.focus"
     },
     {
         "key": "ctrl+e",
         "command": "-extension.vim_ctrl+e",
-        "when": "editorTextFocus && vim.active && vim.use<C-e> && !inDebugRepl",
+        "when": "editorTextFocus && vim.active && vim.use<C-e> && !inDebugRepl"
     },
     {
         "key": "ctrl+e",
         "command": "-workbench.action.quickOpenNavigateNextInFilePicker",
-        "when": "inFilesPicker && inQuickOpen",
+        "when": "inFilesPicker && inQuickOpen"
     },
     {
         "key": "ctrl+n",
-        "command": "workbench.explorer.fileView.focus",
+        "command": "workbench.explorer.fileView.focus"
     },
     {
         "key": "ctrl+p",
-        "command": "workbench.action.quickOpen",
+        "command": "workbench.action.quickOpen"
     },
     {
         "key": "cmd+p",
-        "command": "-workbench.action.quickOpen",
+        "command": "-workbench.action.quickOpen"
     },
     {
         "key": "ctrl+p",
         "command": "-extension.vim_ctrl+p",
-        "when": "editorTextFocus && vim.active && vim.use<C-p> && !inDebugRepl || vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'CommandlineInProgress' || vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'SearchInProgressMode'",
+        "when": "editorTextFocus && vim.active && vim.use<C-p> && !inDebugRepl || vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'CommandlineInProgress' || vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'SearchInProgressMode'"
     },
     {
         "key": "ctrl+p",
         "command": "-workbench.action.quickOpenNavigateNextInFilePicker",
-        "when": "inFilesPicker && inQuickOpen",
+        "when": "inFilesPicker && inQuickOpen"
     },
     {
         "key": "ctrl+shift+p",
-        "command": "workbench.action.showCommands",
+        "command": "workbench.action.showCommands"
     },
     {
         "key": "shift+cmd+p",
-        "command": "-workbench.action.showCommands",
+        "command": "-workbench.action.showCommands"
     },
     {
         "key": "ctrl+shift+f",
-        "command": "workbench.action.findInFiles",
+        "command": "workbench.action.findInFiles"
     },
     {
         "key": "ctrl+shift+o",
         "command": "workbench.action.gotoSymbol",
-        "when": "!accessibilityHelpIsShown && !accessibleViewIsShown",
+        "when": "!accessibilityHelpIsShown && !accessibleViewIsShown"
     },
     {
         "key": "shift+cmd+o",
         "command": "-workbench.action.gotoSymbol",
-        "when": "!accessibilityHelpIsShown && !accessibleViewIsShown",
+        "when": "!accessibilityHelpIsShown && !accessibleViewIsShown"
     },
     {
         "key": "ctrl+shift+o",
         "command": "editor.action.accessibleViewGoToSymbol",
-        "when": "accessibilityHelpIsShown && accessibleViewGoToSymbolSupported || accessibleViewGoToSymbolSupported && accessibleViewIsShown",
+        "when": "accessibilityHelpIsShown && accessibleViewGoToSymbolSupported || accessibleViewGoToSymbolSupported && accessibleViewIsShown"
     },
     {
         "key": "shift+cmd+o",
         "command": "-editor.action.accessibleViewGoToSymbol",
-        "when": "accessibilityHelpIsShown && accessibleViewGoToSymbolSupported || accessibleViewGoToSymbolSupported && accessibleViewIsShown",
+        "when": "accessibilityHelpIsShown && accessibleViewGoToSymbolSupported || accessibleViewGoToSymbolSupported && accessibleViewIsShown"
     },
     {
         "key": "ctrl+shift+o",
         "command": "workbench.action.terminal.openDetectedLink",
-        "when": "terminalFocus && terminalHasBeenCreated",
+        "when": "terminalFocus && terminalHasBeenCreated"
     },
     {
         "key": "shift+cmd+o",
         "command": "-workbench.action.terminal.openDetectedLink",
-        "when": "terminalFocus && terminalHasBeenCreated",
+        "when": "terminalFocus && terminalHasBeenCreated"
     },
     {
         "key": "cmd+f",
-        "command": "workbench.action.showAllSymbols",
+        "command": "workbench.action.showAllSymbols"
     },
     {
         "key": "cmd+t",
-        "command": "-workbench.action.showAllSymbols",
+        "command": "-workbench.action.showAllSymbols"
     },
     {
         "key": "ctrl+shift+b",
         "command": "workbench.action.tasks.build",
-        "when": "editorTextFocus",
+        "when": "editorTextFocus"
     },
     {
         "key": "ctrl+b",
-        "command": "workbench.view.extension.sqltoolsActivityBarContainer",
+        "command": "workbench.view.extension.sqltoolsActivityBarContainer"
     },
     // libera o ctrl+r (sem conflito entre vim, terminal e chat)
     {
         "key": "ctrl+r",
         "command": "-extension.vim_ctrl+r",
-        "when": "editorTextFocus && vim.active && vim.use<C-r> && !inDebugRepl",
+        "when": "editorTextFocus && vim.active && vim.use<C-r> && !inDebugRepl"
     },
     {
         "key": "ctrl+r",
         "command": "-inlineChat.regenerate",
-        "when": "inlineChatHasProvider && inlineChatVisible",
+        "when": "inlineChatHasProvider && inlineChatVisible"
     },
     {
         "key": "ctrl+r",
         "command": "-workbench.action.quickOpenNavigateNextInRecentFilesPicker",
-        "when": "inQuickOpen && inRecentFilesPicker",
+        "when": "inQuickOpen && inRecentFilesPicker"
     },
     {
         "key": "ctrl+r",
         "command": "-workbench.action.terminal.chat.rerunRequest",
-        "when": "chatIsEnabled && terminalChatFocus && terminalHasBeenCreated && !terminalChatActiveRequest || chatIsEnabled && terminalChatFocus && terminalProcessSupported && !terminalChatActiveRequest",
+        "when": "chatIsEnabled && terminalChatFocus && terminalHasBeenCreated && !terminalChatActiveRequest || chatIsEnabled && terminalChatFocus && terminalProcessSupported && !terminalChatActiveRequest"
     },
     {
         "key": "ctrl+g m",
-        "command": "github.copilot.git.generateCommitMessage",
+        "command": "github.copilot.git.generateCommitMessage"
     },
     {
         "key": "ctrl+a a",
-        "command": "workbench.view.extension.claude-sessions-sidebar",
+        "command": "workbench.view.extension.claude-sessions-sidebar"
     },
+    // abre terminal externo (Ghostty); o nushell (command dele) entra sozinho
+    // no nvim, mesmo mecanismo do ctrl+t a — ver config.nu
+    {
+        "key": "ctrl+t e",
+        "command": "workbench.action.terminal.openNativeConsole",
+        "when": "!isSessionsWindow && !terminalFocus"
+    },
+    // abre editor de terminal; o nushell (perfil padrão) já entra sozinho no nvim
+    // com :terminal + startinsert (guard $env.NVIM em config.nu evita loop)
+    {
+        "key": "ctrl+t a",
+        "command": "workbench.action.createTerminalEditor",
+        "when": "terminalProcessSupported"
+    }
 ]
