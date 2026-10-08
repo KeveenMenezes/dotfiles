@@ -71,14 +71,15 @@ GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 create_symlink "$DOTFILES_DIR/ghostty/config" "$GHOSTTY_CONFIG_DIR/config"
 create_symlink "$DOTFILES_DIR/ghostty/themes/prom-wiki" "$GHOSTTY_CONFIG_DIR/themes/prom-wiki"
 
-# tmux Configuration
-echo -e "\n${GREEN}🪟 Setting up tmux configuration...${NC}"
-TMUX_CONFIG_DIR="$HOME/.config/tmux"
-create_symlink "$DOTFILES_DIR/tmux/tmux.conf" "$TMUX_CONFIG_DIR/tmux.conf"
-create_symlink "$DOTFILES_DIR/tmux/themes/prometheus.conf" "$TMUX_CONFIG_DIR/themes/prometheus.conf"
-if ! command -v tmux >/dev/null 2>&1; then
-    echo -e "${YELLOW}⚠️  tmux not found — install it with: brew install tmux${NC}"
+# herdr Configuration
+echo -e "\n${GREEN}🐑 Setting up herdr configuration...${NC}"
+HERDR_CONFIG_DIR="$HOME/.config/herdr"
+create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HERDR_CONFIG_DIR/config.toml"
+create_symlink "$DOTFILES_DIR/herdr/scripts" "$HERDR_CONFIG_DIR/scripts"
+if ! command -v herdr >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  herdr not found — install it with: brew install herdr${NC}"
 fi
+echo -e "${YELLOW}🤖 Claude Code: run 'herdr integration install claude' and set statusLine (see README)${NC}"
 
 echo -e "\n${GREEN}✅ Dotfiles installation completed!${NC}"
 echo -e "${YELLOW}📝 Note: Any changes made to files in $DOTFILES_DIR will be automatically reflected in your system configuration.${NC}"

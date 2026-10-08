@@ -62,11 +62,11 @@ GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 remove_symlink "$GHOSTTY_CONFIG_DIR/config" "Ghostty config"
 remove_symlink "$GHOSTTY_CONFIG_DIR/themes/prom-wiki" "Ghostty prom-wiki theme"
 
-# Remove tmux configuration
-echo -e "\n${RED}🪟 Removing tmux configuration...${NC}"
-TMUX_CONFIG_DIR="$HOME/.config/tmux"
-remove_symlink "$TMUX_CONFIG_DIR/tmux.conf" "tmux config"
-remove_symlink "$TMUX_CONFIG_DIR/themes/prometheus.conf" "tmux Prometheus theme"
+# Remove herdr configuration
+echo -e "\n${RED}🐑 Removing herdr configuration...${NC}"
+HERDR_CONFIG_DIR="$HOME/.config/herdr"
+remove_symlink "$HERDR_CONFIG_DIR/config.toml" "herdr config"
+remove_symlink "$HERDR_CONFIG_DIR/scripts" "herdr scripts"
 
 echo -e "\n${GREEN}✅ Dotfiles uninstallation completed!${NC}"
 echo -e "${YELLOW}🔄 You may need to restart applications for changes to take effect.${NC}"

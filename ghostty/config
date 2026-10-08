@@ -7,9 +7,9 @@ background-opacity = 0.90
 theme = prom-wiki
 foreground = #b6b6b6
 
-# tmux como "shell" do Ghostty: anexa (ou cria) a sessão "main".
-# O shell dos painéis (nushell) é definido no tmux.conf (default-shell).
-command = /opt/homebrew/bin/tmux new-session -A -s main
+# herdr como "shell" do Ghostty: anexa (ou cria) a sessão persistente padrão.
+# O shell dos painéis (nushell) é definido no config.toml do herdr (default_shell).
+command = /opt/homebrew/bin/herdr
 
-# Fechar a janela só desanexa do tmux; a sessão e os agents continuam rodando.
+# Fechar a janela só desanexa do herdr; a sessão e os agents continuam rodando.
 confirm-close-surface = false

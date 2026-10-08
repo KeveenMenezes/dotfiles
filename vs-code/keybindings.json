@@ -390,7 +390,7 @@
         "key": "ctrl+a a",
         "command": "workbench.view.extension.claude-sessions-sidebar"
     },
-    // abre terminal externo (Ghostty), que já entra no tmux (sessão main)
+    // abre terminal externo (Ghostty), que já entra no herdr
     {
         "key": "ctrl+t e",
         "command": "workbench.action.terminal.openNativeConsole",
