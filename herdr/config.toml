@@ -36,9 +36,10 @@ default_shell = "/opt/homebrew/bin/nu"
 new_cwd = "follow"
 
 # ── Atalhos ────────────────────────────────────────────────────────────────
-# Prefixo padrão ctrl+b e defaults do herdr (prefix+? mostra todos).
+# Prefixo ctrl+a (padrão do herdr é ctrl+b) e defaults do herdr (prefix+? mostra todos).
 # Popups usam caminho absoluto: o servidor sobe com o PATH mínimo do Ghostty.
 [keys]
+prefix = "ctrl+a"
 next_agent = "prefix+a"
 previous_agent = "prefix+shift+a"
 
