@@ -9,7 +9,7 @@ foreground = #b6b6b6
 
 # herdr como "shell" do Ghostty: anexa (ou cria) a sessão persistente padrão.
 # O shell dos painéis (nushell) é definido no config.toml do herdr (default_shell).
-command = /opt/homebrew/bin/herdr
+command = /usr/bin/env EDITOR=/opt/homebrew/bin/nvim /opt/homebrew/bin/herdr
 
 # Fechar a janela só desanexa do herdr; a sessão e os agents continuam rodando.
 confirm-close-surface = false
