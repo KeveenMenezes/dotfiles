@@ -253,16 +253,14 @@
     },
 
     // ── Abas / buffers (ctrl+h / ctrl+l) ──────────────────────────────────
-    // substitui o Shift+h/l do Vim; fora do terminal para não quebrar backspace/clear
+    // substitui o Shift+h/l do Vim; vale também no terminal (commandsToSkipShell)
     {
         "key": "ctrl+h",
-        "command": "workbench.action.previousEditor",
-        "when": "!terminalFocus"
+        "command": "workbench.action.previousEditor"
     },
     {
         "key": "ctrl+l",
-        "command": "workbench.action.nextEditor",
-        "when": "!terminalFocus"
+        "command": "workbench.action.nextEditor"
     },
 
     // ── Navegação / busca (diretos) ───────────────────────────────────────
