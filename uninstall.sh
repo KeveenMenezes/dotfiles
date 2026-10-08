@@ -56,5 +56,17 @@ VSCODE_CONFIG_DIR="$HOME/Library/Application Support/Code/User"
 remove_symlink "$VSCODE_CONFIG_DIR/settings.json" "VS Code settings"
 remove_symlink "$VSCODE_CONFIG_DIR/keybindings.json" "VS Code keybindings"
 
+# Remove Ghostty configuration
+echo -e "\n${RED}👻 Removing Ghostty configuration...${NC}"
+GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+remove_symlink "$GHOSTTY_CONFIG_DIR/config" "Ghostty config"
+remove_symlink "$GHOSTTY_CONFIG_DIR/themes/prom-wiki" "Ghostty prom-wiki theme"
+
+# Remove tmux configuration
+echo -e "\n${RED}🪟 Removing tmux configuration...${NC}"
+TMUX_CONFIG_DIR="$HOME/.config/tmux"
+remove_symlink "$TMUX_CONFIG_DIR/tmux.conf" "tmux config"
+remove_symlink "$TMUX_CONFIG_DIR/themes/prometheus.conf" "tmux Prometheus theme"
+
 echo -e "\n${GREEN}✅ Dotfiles uninstallation completed!${NC}"
 echo -e "${YELLOW}🔄 You may need to restart applications for changes to take effect.${NC}"

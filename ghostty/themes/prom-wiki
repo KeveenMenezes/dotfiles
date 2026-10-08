@@ -1,0 +1,30 @@
+# Prom-Wiki 2026 Dark theme for Ghostty
+# Palette derived from prom-wiki-2026-dark.json VSCode theme
+
+background = #101010
+foreground = #cccccc
+cursor-color = #00d0ff
+cursor-text = #101010
+selection-background = #0d3640
+selection-foreground = #cccccc
+split-divider-color = #ff9e3b
+
+# Normal colors (0-7)
+palette = 0=#1a1a1a
+palette = 1=#f44747
+palette = 2=#98c379
+palette = 3=#ff9e3b
+palette = 4=#29b8db
+palette = 5=#a579c3
+palette = 6=#23d8ea
+palette = 7=#888888
+
+# Bright colors (8-15)
+palette = 8=#444444
+palette = 9=#ff7d4d
+palette = 10=#b5e890
+palette = 11=#ffc066
+palette = 12=#00d0ff
+palette = 13=#c89ee0
+palette = 14=#57e6f5
+palette = 15=#e0e0e0

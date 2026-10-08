@@ -1,0 +1,15 @@
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+window-padding-x = 10
+window-padding-y = 10
+background-blur-radius = 10
+background-opacity = 0.90
+theme = prom-wiki
+foreground = #b6b6b6
+
+# tmux como "shell" do Ghostty: anexa (ou cria) a sessão "main".
+# O shell dos painéis (nushell) é definido no tmux.conf (default-shell).
+command = /opt/homebrew/bin/tmux new-session -A -s main
+
+# Fechar a janela só desanexa do tmux; a sessão e os agents continuam rodando.
+confirm-close-surface = false

@@ -390,15 +390,13 @@
         "key": "ctrl+a a",
         "command": "workbench.view.extension.claude-sessions-sidebar"
     },
-    // abre terminal externo (Ghostty); o nushell (command dele) entra sozinho
-    // no nvim, mesmo mecanismo do ctrl+t a — ver config.nu
+    // abre terminal externo (Ghostty), que já entra no tmux (sessão main)
     {
         "key": "ctrl+t e",
         "command": "workbench.action.terminal.openNativeConsole",
         "when": "!isSessionsWindow && !terminalFocus"
     },
-    // abre editor de terminal; o nushell (perfil padrão) já entra sozinho no nvim
-    // com :terminal + startinsert (guard $env.NVIM em config.nu evita loop)
+    // abre terminal na área do editor (nushell, perfil padrão)
     {
         "key": "ctrl+t a",
         "command": "workbench.action.createTerminalEditor",
