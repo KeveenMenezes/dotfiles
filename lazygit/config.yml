@@ -1,0 +1,10 @@
+# Diff com delta (git config: core.pager). Backup em ~/.config/backup-terminal-20261113/
+git:
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never --line-numbers
+gui:
+  nerdFontsVersion: "3"
+  showFileTree: true
+os:
+  editPreset: nvim

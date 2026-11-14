@@ -1,0 +1,6 @@
+# Copie para ~/.gitconfig.local (não versionado) e ajuste.
+# Usado para o que é da máquina ou da empresa e não deve ir para um repo público.
+
+# Identidade/assinatura diferentes para os repositórios de uma pasta de trabalho:
+# [includeIf "gitdir:~/Documents/<empresa>/"]
+# 	path = ~/.config/git/<empresa>.gitconfig

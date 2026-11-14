@@ -3,7 +3,7 @@ font-size = 12
 window-padding-x = 10
 window-padding-y = 10
 background-blur-radius = 10
-background-opacity = 0.90
+background-opacity = 0.96
 theme = prom-wiki
 foreground = #b6b6b6
 

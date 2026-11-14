@@ -394,7 +394,7 @@
         "~/.copilot/instructions": true,
         "~/.claude/rules": true,
     },
-    "claudeCode.preferredLocation": "panel",
+    "claudeCode.preferredLocation": "sidebar",
     "terminal.integrated.enableVisualBell": true,
     "yaml.disableSchemaDetection": [
         "**/.github/workflows/*.yml",
@@ -419,4 +419,10 @@
     "glassy.alpha": 243,
     "hediet.vscode-drawio.resizeImages": null,
     "chat.agentHost.allowSignedOutWhenUsable": true,
+    "mssql.connectionGroups": [
+        {
+            "name": "ROOT",
+            "id": "ROOT",
+        },
+    ],
 }

@@ -39,7 +39,7 @@ SKETCHYBAR_CONFIG_DIR="$HOME/.config/sketchybar"
 if [ -L "$SKETCHYBAR_CONFIG_DIR" ]; then
     rm "$SKETCHYBAR_CONFIG_DIR"
     # Look for backup
-    local backup=$(ls -td "${SKETCHYBAR_CONFIG_DIR}.backup."* 2>/dev/null | head -n1)
+    backup=$(ls -td "${SKETCHYBAR_CONFIG_DIR}.backup."* 2>/dev/null | head -n1)
     if [ -n "$backup" ]; then
         echo -e "${GREEN}📦 Restoring SketchyBar backup${NC}"
         mv "$backup" "$SKETCHYBAR_CONFIG_DIR"
@@ -67,6 +67,23 @@ echo -e "\n${RED}🐑 Removing herdr configuration...${NC}"
 HERDR_CONFIG_DIR="$HOME/.config/herdr"
 remove_symlink "$HERDR_CONFIG_DIR/config.toml" "herdr config"
 remove_symlink "$HERDR_CONFIG_DIR/scripts" "herdr scripts"
+
+# Remove Nushell configuration
+echo -e "\n${RED}🐚 Removing Nushell configuration...${NC}"
+NU_CONFIG_DIR="$HOME/Library/Application Support/nushell"
+remove_symlink "$NU_CONFIG_DIR/config.nu" "Nushell config"
+remove_symlink "$NU_CONFIG_DIR/env.nu" "Nushell env"
+remove_symlink "$NU_CONFIG_DIR/autoload/direnv.nu" "Nushell direnv hook"
+remove_symlink "$NU_CONFIG_DIR/autoload/_fzf_integration.nu" "Nushell fzf integration"
+
+# Remove Starship, atuin, lazygit, git, Colima configuration
+echo -e "\n${RED}🚀 Removing Starship, atuin, lazygit, git and Colima configuration...${NC}"
+remove_symlink "$HOME/.config/starship.toml" "Starship"
+remove_symlink "$HOME/.config/atuin/config.toml" "atuin"
+remove_symlink "$HOME/Library/Application Support/lazygit/config.yml" "lazygit"
+remove_symlink "$HOME/.gitconfig" "git config"
+remove_symlink "$HOME/.config/git/ignore" "git global ignore"
+remove_symlink "$HOME/.colima/_templates/default.yaml" "Colima template"
 
 echo -e "\n${GREEN}✅ Dotfiles uninstallation completed!${NC}"
 echo -e "${YELLOW}🔄 You may need to restart applications for changes to take effect.${NC}"

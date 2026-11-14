@@ -1,0 +1,36 @@
+[user]
+	name = Keveen Menezes
+	email = 55338949+KeveenMenezes@users.noreply.github.com
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[pull]
+	rebase = true
+	ff = only
+[core]
+	fsmonitor = true
+	untrackedCache = true
+	checkStat = minimal
+	pager = delta
+[fetch]
+	prune = true
+[status]
+	submoduleSummary = false
+[credential]
+	useHttpPath = true
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
+	hyperlinks = true
+[merge]
+	conflictStyle = zdiff3
+[diff]
+	colorMoved = default
+# Config da máquina/empresa (includeIf por pasta, chave de assinatura, credential helper).
+# Não versionado; se o arquivo não existir o git ignora. Exemplo em git/gitconfig.local.example.
+[include]
+	path = ~/.gitconfig.local

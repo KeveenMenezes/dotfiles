@@ -1,0 +1,13 @@
+# Copie para <pasta do nushell>/autoload/local.nu (não versionado) e preencha.
+# No macOS a pasta é ~/Library/Application Support/nushell.
+#
+# Variáveis de projeto/infra que não devem ir para um repo público.
+# Segredos (senhas, tokens) não ficam aqui: use direnv (.envrc por projeto),
+# o Keychain (`security find-generic-password -w -s <nome>`) ou um cofre.
+
+# $env.DB_HOST = "<host>"
+# $env.DB_USER = "<usuário>"
+# $env.REDIS_HOST = "localhost:6379"
+# $env.KAFKA_BOOTSTRAP_SERVERS = "<host>:9092"
+# $env.ELASTIC_APM_ENVIRONMENT = "Development"
+# $env.ELASTIC_APM_SERVER_URL = "<url>"

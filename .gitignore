@@ -1,0 +1,15 @@
+# Arquivos locais com dados da máquina/empresa — nunca versionar
+*.local
+*.local.*
+!*.local.example
+!*.local.*.example
+nushell/autoload/local.nu
+.envrc
+.env
+.env.*
+
+# Gerados por `atuin init`, `starship init`, `zoxide init` (o install.sh regenera)
+nushell/autoload/atuin.nu
+nushell/vendor/
+
+.DS_Store
