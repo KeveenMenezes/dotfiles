@@ -14,8 +14,8 @@ name = "terminal"
 panel_bg = "reset"
 sidebar_bg = "reset"
 active_row_bg = "#1d1d1d"
-selection_bg = "#0d3640"
-accent = "#00d0ff"
+selection_bg = "#1a2c36"
+accent = "#439ed0"
 surface0 = "#1d1d1d"
 surface1 = "#232323"
 surface_dim = "#151515"
@@ -69,7 +69,7 @@ height = "80%"
 
 # ── Interface ──────────────────────────────────────────────────────────────
 [ui]
-accent = "#00d0ff"
+accent = "#439ed0"
 tab_bar_position = "top"
 # fila de atenção: agents bloqueados primeiro, depois os que terminaram
 agent_panel_sort = "priority"

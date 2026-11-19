@@ -5,8 +5,8 @@
 # A tabela é bijetora: cada destino é único e nenhum aparece nos arquivos originais, então
 # `tema prometheus` desfaz byte a byte.
 # Colunas: prometheus<TAB>prom-lilas<TAB>papel
-#00d0ff	#6fd8ff	sky (destaque, cursor)
-#0d3640	#2f2a45	seleção
+#439ed0	#6fd8ff	sky (destaque, cursor)
+#1a2c36	#2f2a45	seleção
 #1a6080	#4f7fa0	azul escuro (starship)
 #1a9898	#5aa8a8	aqua escuro (starship)
 #23d18b	#a8dcb4	verde de string (nushell)

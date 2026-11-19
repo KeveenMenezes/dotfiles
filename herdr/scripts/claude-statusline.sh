@@ -34,7 +34,7 @@ fi
 
 # linha do Claude Code nas cores Prometheus (verde < 60% <= laranja < 85% <= vermelho)
 c() { if [ "$1" -ge 85 ]; then printf '\033[38;2;244;71;71m'; elif [ "$1" -ge 60 ]; then printf '\033[38;2;255;158;59m'; else printf '\033[38;2;152;195;121m'; fi; }
-DIM='\033[38;2;107;107;107m'; SKY='\033[38;2;0;208;255m'; R='\033[0m'
+DIM='\033[38;2;107;107;107m'; SKY='\033[38;2;67;158;208m'; R='\033[0m'
 
 line=$(printf "${SKY}%s${R} ${DIM}ctx${R} $(c "$ctx")%s%%${R}" "$model" "$ctx")
 if [ "$h5" != - ]; then
