@@ -6,7 +6,7 @@
 # Interface
 #   bg        #101010   input    #151515   widget   #212121   hover  #252525   borda  #2b2b2b
 #   texto     #bfbfbf   texto+   #e0e0e0   apagado  #888888   dim    #6b6b6b   faint  #444444
-#   destaque  #949494   lista    #3a3a3a (#949494 a 33%)   seleção #1a2c36 (#439ed0 a 20%)
+#   destaque  #949494   lista    #3a3a3a (#949494 a 33%)   seleção #153239 (#29b8db a 20%)
 # Código (tokens do VS Code)
 #   keyword   #ff7d4d   tipo     #ff9e3b   função   #23d8ea   string #98c379   const  #a579c3
 #   variável  #e0e0e0   operador #888888   comentário #6b6b6b
@@ -123,7 +123,7 @@ foreground = "#444444"
 foreground = "#333333"
 
 [styles.list_item_filter_match]
-foreground = "#439ed0"
+foreground = "#29b8db"
 underline = true
 
 [styles.cli_run_picker_selected]
@@ -131,10 +131,10 @@ foreground = "#e0e0e0"
 background = "#3a3a3a"
 
 [styles.cli_run_picker_cursor]
-foreground = "#439ed0"
+foreground = "#29b8db"
 
 [styles.cli_run_picker_cursor_selected]
-foreground = "#439ed0"
+foreground = "#29b8db"
 background = "#3a3a3a"
 
 # ── Abas ─────────────────────────────────────────────────────────────
@@ -191,10 +191,10 @@ foreground = "#b6b6b6"
 foreground = "#888888"
 
 [styles.response_selection]
-background = "#1a2c36"
+background = "#153239"
 
 [styles.response_cursor]
-foreground = "#439ed0"
+foreground = "#29b8db"
 bold = true
 
 [styles.response_search_highlight]
