@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+# tema — alterna todo o terminal entre o Prometheus (prom-wiki) e o Prometheus Lilás (prom-lilas)
+#
+#   tema              mostra o tema ativo
+#   tema prometheus   aplica o Prometheus (prom-wiki-2026-dark)
+#   tema lilas        aplica o Prometheus Lilás (mesmos cinzas, destaques em versão pastel)
+#   tema gerar        refaz os arquivos do lilás a partir dos do prom-wiki (rode após editar um prom-wiki)
+#   tema restaurar    copia de volta o backup tirado antes da primeira troca
+#
+# Como cada ferramenta troca:
+#   1. tabela de cores (themes/prom-lilas/map.tsv), hex por hex, ida e volta: herdr, starship,
+#      nushell, ghostty (foreground) e a statusline do Claude (RGB);
+#   2. nome do tema: ghostty (theme =), resterm (default_theme), wiipo-pulse e neovim
+#      (o promo-wiki.lua lê ~/.config/tema/atual);
+#   3. bloco entre marcadores `# >>> tema` / `# <<< tema`, trocado pelo do tema escolhido:
+#      lazygit, lazydocker, gh-dash, atuin, lazysql e o autoload do nushell (fzf + bat/delta).
+#      Os blocos de cada tema ficam em themes/<tema>/blocks/.
+set -euo pipefail
+
+DOT="${DOTFILES_DIR:-$HOME/Documents/projects/dotfiles}"
+MAP="$DOT/themes/prom-lilas/map.tsv"
+APP="$HOME/Library/Application Support"
+STATE_DIR="$HOME/.config/tema"
+STATE="$STATE_DIR/atual"
+BACKUP_ROOT="$HOME/.local/state/tema"
+MARK_START="# >>> tema"
+MARK_END="# <<< tema"
+
+# 1. arquivos com cores trocadas pela tabela
+MAPPED=(
+  "$DOT/herdr/config.toml"
+  "$DOT/starship/starship.toml"
+  "$DOT/nushell/config.nu"
+  "$DOT/ghostty/config"
+  "$DOT/herdr/scripts/claude-statusline.sh"
+)
+# 2. troca de nome
+GHOSTTY_CFG="$DOT/ghostty/config"
+RESTERM_SETTINGS="$APP/resterm/settings.toml"
+PULSE_THEME="$HOME/.cache/wiipo-pulse/theme"
+# 3. blocos: arquivo-alvo|arquivo-do-bloco|onde (fim | depois da linha que casa com a regex)
+BLOCK_TARGETS=(
+  "$DOT/lazygit/config.yml|lazygit.yml|^gui:$"
+  "$APP/lazydocker/config.yml|lazydocker.yml|fim"
+  "$HOME/.config/gh-dash/config.yml|gh-dash.yml|fim"
+  "$DOT/atuin/config.toml|atuin.toml|fim"
+  "$APP/lazysql/config.toml|lazysql.toml|fim"
+)
+NU_AUTOLOAD="$APP/nushell/autoload/zz-tema.nu"
+
+say() { printf '  %s\n' "$*"; }
+current() { cat "$STATE" 2>/dev/null || echo prometheus; }
+theme_name() { [[ $1 == prom-lilas ]] && echo prom-lilas || echo prom-wiki; }
+
+# Script sed com a tabela (hex e, para a statusline, os mesmos pares em "38;2;R;G;Bm")
+sed_script() { # ida | volta
+  local from to _ r1 g1 b1 r2 g2 b2 t
+  while IFS=$'\t' read -r from to _; do
+    [[ $from =~ ^#[0-9a-f]{6}$ && $to =~ ^#[0-9a-f]{6}$ ]] || continue
+    [[ $1 == volta ]] && { t=$from; from=$to; to=$t; }
+    printf 's/%s/%s/g\n' "$from" "$to"
+    r1=$((16#${from:1:2})) g1=$((16#${from:3:2})) b1=$((16#${from:5:2}))
+    r2=$((16#${to:1:2})) g2=$((16#${to:3:2})) b2=$((16#${to:5:2}))
+    printf 's/38;2;%d;%d;%dm/38;2;%d;%d;%dm/g\n' "$r1" "$g1" "$b1" "$r2" "$g2" "$b2"
+  done <"$MAP"
+}
+
+# Reescreve o arquivo no lugar sem trocar dono, permissões nem o symlink
+rewrite() { # arquivo comando...
+  local f=$1 tmp
+  shift
+  tmp=$(mktemp)
+  "$@" <"$f" >"$tmp"
+  cat "$tmp" >"$f"
+  rm -f "$tmp"
+}
+
+apply_map() { # ida | volta
+  local script f
+  script=$(mktemp)
+  sed_script "$1" >"$script"
+  for f in "${MAPPED[@]}"; do
+    [[ -f $f ]] && rewrite "$f" sed -f "$script"
+  done
+  rm -f "$script"
+}
+
+block_remove() { # alvo
+  [[ -f $1 ]] || return 0
+  rewrite "$1" awk -v ms="$MARK_START" -v me="$MARK_END" '
+    index($0, ms) { skip = 1; next }
+    index($0, me) { skip = 0; next }
+    !skip'
+}
+
+block_add() { # alvo bloco onde
+  local target=$1 block=$2 where=$3
+  [[ -e $target ]] || : >"$target"
+  if [[ $where == fim ]]; then
+    { printf '%s\n' "$MARK_START"; cat "$block"; printf '%s\n' "$MARK_END"; } >>"$target"
+  else
+    rewrite "$target" awk -v re="$where" -v ms="$MARK_START" -v me="$MARK_END" -v bf="$block" '
+      { print }
+      !done && $0 ~ re {
+        print "  " ms
+        while ((getline l < bf) > 0) print l
+        print "  " me
+        done = 1
+      }'
+  fi
+}
+
+# Troca os blocos de tema de todas as ferramentas pelos do tema escolhido (idempotente)
+set_blocks() { # prom-wiki | prom-lilas
+  local dir="$DOT/themes/$1/blocks" t target block where
+  for t in "${BLOCK_TARGETS[@]}"; do
+    IFS='|' read -r target block where <<<"$t"
+    [[ -d $(dirname "$target") ]] || continue
+    block_remove "$target"
+    block_add "$target" "$dir/$block" "$where"
+  done
+  cp "$dir/nushell.nu" "$NU_AUTOLOAD"
+  mkdir -p "$(dirname "$PULSE_THEME")"
+  printf '%s' "$1" >"$PULSE_THEME"
+}
+
+all_files() {
+  local t
+  printf '%s\n' "${MAPPED[@]}" "$GHOSTTY_CFG" "$RESTERM_SETTINGS" "$PULSE_THEME" "$NU_AUTOLOAD"
+  for t in "${BLOCK_TARGETS[@]}"; do printf '%s\n' "${t%%|*}"; done
+}
+
+# Backup de tudo que o tema mexe, só antes da primeira troca (rede de segurança do `tema restaurar`)
+backup_once() {
+  ls -d "$BACKUP_ROOT"/backup-* >/dev/null 2>&1 && return 0
+  local dir f
+  dir="$BACKUP_ROOT/backup-$(date +%Y%m%d_%H%M%S)"
+  mkdir -p "$dir"
+  : >"$dir/ausentes.txt"
+  while IFS= read -r f; do
+    if [[ -e $f ]]; then
+      mkdir -p "$dir/arquivos$(dirname "$f")"
+      cp -p "$(realpath "$f")" "$dir/arquivos$f"
+    else
+      printf '%s\n' "$f" >>"$dir/ausentes.txt"
+    fi
+  done < <(all_files | sort -u)
+  say "backup do estado atual em $dir"
+}
+
+reload() {
+  command -v herdr >/dev/null && HERDR_ENV=1 herdr server reload-config >/dev/null 2>&1 && say "herdr recarregado"
+  command -v bat >/dev/null && bat cache --build >/dev/null 2>&1 || true
+  say "Ghostty: recarregue com ⌘⇧, (ou abra uma janela nova)"
+  say "Neovim, resterm, lazysql e shells: valem para os que abrirem agora (no nvim aberto: :colorscheme promo-wiki)"
+}
+
+apply() { # prometheus | prom-lilas
+  local want=$1 now
+  now=$(current)
+  backup_once
+  if [[ $want != "$now" ]]; then
+    if [[ $want == prom-lilas ]]; then
+      apply_map ida
+      rewrite "$GHOSTTY_CFG" sed 's/^theme = prom-wiki$/theme = prom-lilas/'
+      [[ -f $RESTERM_SETTINGS ]] && rewrite "$RESTERM_SETTINGS" sed 's/^default_theme = "prom-wiki"$/default_theme = "prom-lilas"/'
+    else
+      apply_map volta
+      rewrite "$GHOSTTY_CFG" sed 's/^theme = prom-lilas$/theme = prom-wiki/'
+      [[ -f $RESTERM_SETTINGS ]] && rewrite "$RESTERM_SETTINGS" sed 's/^default_theme = "prom-lilas"$/default_theme = "prom-wiki"/'
+    fi
+  fi
+  set_blocks "$(theme_name "$want")"
+  mkdir -p "$STATE_DIR"
+  printf '%s\n' "$want" >"$STATE"
+  if [[ $want == prom-lilas ]]; then say "Prometheus Lilás aplicado"; else say "Prometheus aplicado"; fi
+  reload
+}
+
+# Refaz os arquivos do lilás a partir dos do prom-wiki, pela tabela de cores
+generate() {
+  local script f
+  script=$(mktemp)
+  sed_script ida | grep -v '38;2' >"$script"
+  mkdir -p "$DOT/themes/prom-lilas/blocks"
+  for f in "$DOT/themes/prom-wiki/blocks/"*; do
+    sed -f "$script" "$f" | sed 's/prom-wiki/prom-lilas/g' >"$DOT/themes/prom-lilas/blocks/${f##*/}"
+  done
+  sed -f "$script" "$DOT/bat/themes/prom-wiki.tmTheme" | sed 's/prom-wiki/prom-lilas/g; s/Prom-Wiki (prom-wiki-2026-dark)/Prometheus Lilás/' >"$DOT/bat/themes/prom-lilas.tmTheme"
+  sed -f "$script" "$DOT/atuin/themes/prom-wiki.toml" | sed 's/prom-wiki/prom-lilas/g' >"$DOT/atuin/themes/prom-lilas.toml"
+  sed -f "$script" "$DOT/resterm/themes/prom-wiki.toml" |
+    sed 's/^name = "Prom-Wiki"$/name = "Prom-Lilas"/; s/^tags = \["dark", "prometheus"\]$/tags = ["dark", "prometheus", "pastel"]/' >"$DOT/resterm/themes/prom-lilas.toml"
+  sed -f "$script" "$DOT/ghostty/themes/prom-wiki" | sed '1,2c\
+# Prometheus Lilás (prom-lilas) — Ghostty\
+# Gerado do prom-wiki pela tabela themes/prom-lilas/map.tsv: cinzas iguais, destaques em versão pastel' >"$DOT/ghostty/themes/prom-lilas"
+  rm -f "$script"
+  say "arquivos do lilás refeitos a partir do prom-wiki"
+  [[ $(current) == prom-lilas ]] && set_blocks prom-lilas || true
+}
+
+restore_backup() {
+  local dir f
+  dir=$(ls -d "$BACKUP_ROOT"/backup-* 2>/dev/null | head -n 1)
+  [[ -n $dir ]] || { say "nenhum backup encontrado"; exit 1; }
+  (cd "$dir/arquivos" && find . -type f) | while IFS= read -r f; do
+    f=${f#.}
+    cat "$dir/arquivos$f" >"$f"
+  done
+  while IFS= read -r f; do rm -f "$f"; done <"$dir/ausentes.txt"
+  printf 'prometheus\n' >"$STATE"
+  say "arquivos restaurados do backup $dir"
+  reload
+}
+
+case ${1:-} in
+  "") echo "tema ativo: $(current)" ;;
+  lilas | lilás | prom-lilas) apply prom-lilas ;;
+  prometheus | prom-wiki) apply prometheus ;;
+  gerar) generate ;;
+  restaurar) restore_backup ;;
+  -h | --help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) echo "uso: tema [prometheus | lilas | gerar | restaurar]" >&2; exit 2 ;;
+esac

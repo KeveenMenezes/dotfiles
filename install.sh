@@ -70,6 +70,7 @@ echo -e "\n${GREEN}👻 Setting up Ghostty configuration...${NC}"
 GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 create_symlink "$DOTFILES_DIR/ghostty/config" "$GHOSTTY_CONFIG_DIR/config"
 create_symlink "$DOTFILES_DIR/ghostty/themes/prom-wiki" "$GHOSTTY_CONFIG_DIR/themes/prom-wiki"
+create_symlink "$DOTFILES_DIR/ghostty/themes/prom-lilas" "$GHOSTTY_CONFIG_DIR/themes/prom-lilas"
 
 # herdr Configuration
 echo -e "\n${GREEN}🐑 Setting up herdr configuration...${NC}"
@@ -108,6 +109,17 @@ echo -e "\n${GREEN}🚀 Setting up Starship, atuin and lazygit...${NC}"
 create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
 create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
 create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+
+# Tema Prometheus Lilás (alternado pelo comando `tema`: tema lilas | tema prometheus)
+echo -e "\n${GREEN}🎨 Setting up the prom-lilas theme and the tema command...${NC}"
+create_symlink "$DOTFILES_DIR/bin/tema" "$HOME/.local/bin/tema"
+create_symlink "$DOTFILES_DIR/atuin/themes/prom-wiki.toml" "$HOME/.config/atuin/themes/prom-wiki.toml"
+create_symlink "$DOTFILES_DIR/atuin/themes/prom-lilas.toml" "$HOME/.config/atuin/themes/prom-lilas.toml"
+create_symlink "$DOTFILES_DIR/bat/themes/prom-wiki.tmTheme" "$HOME/.config/bat/themes/prom-wiki.tmTheme"
+create_symlink "$DOTFILES_DIR/bat/themes/prom-lilas.tmTheme" "$HOME/.config/bat/themes/prom-lilas.tmTheme"
+create_symlink "$DOTFILES_DIR/resterm/themes/prom-wiki.toml" "$HOME/Library/Application Support/resterm/themes/prom-wiki.toml"
+create_symlink "$DOTFILES_DIR/resterm/themes/prom-lilas.toml" "$HOME/Library/Application Support/resterm/themes/prom-lilas.toml"
+command -v bat >/dev/null 2>&1 && bat cache --build >/dev/null
 
 # Git
 echo -e "\n${GREEN}🌿 Setting up git configuration...${NC}"

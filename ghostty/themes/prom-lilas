@@ -1,0 +1,30 @@
+# Prometheus Lilás (prom-lilas) — Ghostty
+# Gerado do prom-wiki pela tabela themes/prom-lilas/map.tsv: cinzas iguais, destaques em versão pastel
+
+background = #101010
+foreground = #cccccc
+cursor-color = #6fd8ff
+cursor-text = #101010
+selection-background = #2f2a45
+selection-foreground = #cccccc
+split-divider-color = #ffb86b
+
+# Normal colors (0-7)
+palette = 0=#1a1a1a
+palette = 1=#f47c7c
+palette = 2=#b2d99a
+palette = 3=#ffb86b
+palette = 4=#6fc3e3
+palette = 5=#c3a6e0
+palette = 6=#7fe3ee
+palette = 7=#888888
+
+# Bright colors (8-15)
+palette = 8=#444444
+palette = 9=#ffa07f
+palette = 10=#c9edb2
+palette = 11=#ffd59a
+palette = 12=#6fd8ff
+palette = 13=#d8bff0
+palette = 14=#a6eef5
+palette = 15=#e0e0e0

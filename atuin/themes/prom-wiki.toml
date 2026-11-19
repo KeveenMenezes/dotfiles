@@ -1,0 +1,12 @@
+# Prom-Wiki (prom-wiki-2026-dark) para o atuin
+[theme]
+name = "prom-wiki"
+
+[colors]
+AlertInfo = "#98c379"
+AlertWarn = "#ffc066"
+AlertError = "#f44747"
+Annotation = "#6b6b6b"
+Base = "#bfbfbf"
+Guidance = "#888888"
+Important = "#00d0ff"

@@ -1,0 +1,12 @@
+# Prom-Wiki (prom-lilas-2026-dark) para o atuin
+[theme]
+name = "prom-lilas"
+
+[colors]
+AlertInfo = "#b2d99a"
+AlertWarn = "#ffd59a"
+AlertError = "#f47c7c"
+Annotation = "#6b6b6b"
+Base = "#bfbfbf"
+Guidance = "#888888"
+Important = "#6fd8ff"

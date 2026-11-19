@@ -1,0 +1,479 @@
+# Prom-Wiki 2026 Dark — tema do resterm
+# Segue a extensão VSCode keveenmenezes.prometheus (prom-wiki-2026-dark.json + prom-wiki-color-theme.json):
+# a interface é monocromática (cinzas, destaque cinza #949494, seleção ciano a 20%) e a cor fica
+# no conteúdo, com as mesmas cores dos tokens de código do VS Code.
+#
+# Interface
+#   bg        #101010   input    #151515   widget   #212121   hover  #252525   borda  #2b2b2b
+#   texto     #bfbfbf   texto+   #e0e0e0   apagado  #888888   dim    #6b6b6b   faint  #444444
+#   destaque  #949494   lista    #3a3a3a (#949494 a 33%)   seleção #2f2a45 (#6fd8ff a 20%)
+# Código (tokens do VS Code)
+#   keyword   #ffa07f   tipo     #ffb86b   função   #7fe3ee   string #b2d99a   const  #c3a6e0
+#   variável  #e0e0e0   operador #888888   comentário #6b6b6b
+# Estado
+#   erro      #f47c7c   sucesso  #b2d99a   aviso    #ffd59a
+
+[metadata]
+name = "Prom-Lilas"
+description = "Grafite monocromático; cor só no conteúdo, como o Prometheus do VS Code"
+author = "Keveen Menezes"
+version = "2.0.0"
+tags = ["dark", "prometheus", "pastel"]
+
+# ── Estrutura / bordas ───────────────────────────────────────────────
+[styles.app_frame]
+border_color = "#2b2b2b"
+border_style = "rounded"
+
+[styles.browser_border]
+border_color = "#2b2b2b"
+border_style = "rounded"
+
+[styles.editor_border]
+border_color = "#2b2b2b"
+border_style = "rounded"
+
+[styles.response_border]
+border_color = "#2b2b2b"
+border_style = "rounded"
+
+[styles.pane_divider]
+foreground = "#2b2b2b"
+
+[styles.command_divider]
+foreground = "#2b2b2b"
+
+[styles.pane_title]
+foreground = "#888888"
+
+# ── Header ───────────────────────────────────────────────────────────
+[styles.header]
+foreground = "#bfbfbf"
+
+[styles.header_brand]
+foreground = "#101010"
+background = "#949494"
+bold = true
+
+[styles.header_title]
+foreground = "#e0e0e0"
+bold = true
+
+[styles.header_icon]
+foreground = "#949494"
+
+[styles.header_label]
+foreground = "#6b6b6b"
+
+[styles.header_value]
+foreground = "#bfbfbf"
+
+[styles.header_help]
+foreground = "#949494"
+bold = true
+
+[styles.header_warn]
+foreground = "#ffd59a"
+
+[styles.header_separator]
+foreground = "#444444"
+
+# ── Navegador / sidebar ──────────────────────────────────────────────
+[styles.navigator_title]
+foreground = "#bfbfbf"
+
+[styles.navigator_title_selected]
+foreground = "#e0e0e0"
+background = "#3a3a3a"
+bold = true
+
+[styles.navigator_subtitle]
+foreground = "#6b6b6b"
+
+[styles.navigator_subtitle_selected]
+foreground = "#949494"
+background = "#3a3a3a"
+
+[styles.navigator_badge]
+foreground = "#888888"
+
+[styles.navigator_tag]
+foreground = "#c3a6e0"
+
+# ── Listas (histórico, pickers) ──────────────────────────────────────
+[styles.list_item_title]
+foreground = "#bfbfbf"
+
+[styles.list_item_description]
+foreground = "#6b6b6b"
+
+[styles.list_item_selected_title]
+foreground = "#e0e0e0"
+background = "#3a3a3a"
+bold = true
+
+[styles.list_item_selected_description]
+foreground = "#949494"
+background = "#3a3a3a"
+
+[styles.list_item_dimmed_title]
+foreground = "#444444"
+
+[styles.list_item_dimmed_description]
+foreground = "#333333"
+
+[styles.list_item_filter_match]
+foreground = "#6fd8ff"
+underline = true
+
+[styles.cli_run_picker_selected]
+foreground = "#e0e0e0"
+background = "#3a3a3a"
+
+[styles.cli_run_picker_cursor]
+foreground = "#6fd8ff"
+
+[styles.cli_run_picker_cursor_selected]
+foreground = "#6fd8ff"
+background = "#3a3a3a"
+
+# ── Abas ─────────────────────────────────────────────────────────────
+[styles.tab_active]
+foreground = "#e0e0e0"
+background = "#2b2b2b"
+bold = true
+
+[styles.tabs]
+foreground = "#888888"
+
+[styles.tab_inactive]
+foreground = "#6b6b6b"
+
+# ── Command bar / dicas ──────────────────────────────────────────────
+[styles.command_bar]
+foreground = "#bfbfbf"
+
+[styles.command_bar_hint]
+foreground = "#949494"
+bold = true
+
+[[command_segments]]
+key = "#e0e0e0"
+text = "#6b6b6b"
+
+[[command_segments]]
+key = "#949494"
+text = "#6b6b6b"
+
+# ── Notificações ─────────────────────────────────────────────────────
+[styles.notification]
+foreground = "#e0e0e0"
+background = "#212121"
+
+[styles.error]
+foreground = "#101010"
+background = "#f47c7c"
+bold = true
+
+[styles.success]
+foreground = "#101010"
+background = "#b2d99a"
+bold = true
+
+# ── Resposta ─────────────────────────────────────────────────────────
+[styles.response_content]
+foreground = "#bfbfbf"
+
+[styles.response_content_raw]
+foreground = "#b6b6b6"
+
+[styles.response_content_headers]
+foreground = "#888888"
+
+[styles.response_selection]
+background = "#2f2a45"
+
+[styles.response_cursor]
+foreground = "#6fd8ff"
+bold = true
+
+[styles.response_search_highlight]
+foreground = "#e0e0e0"
+background = "#3a3a3a"
+
+[styles.response_search_highlight_active]
+foreground = "#101010"
+background = "#949494"
+bold = true
+
+# ── Popup de autocomplete do editor ──────────────────────────────────
+[styles.editor_hint_box]
+background = "#212121"
+border_color = "#2b2b2b"
+
+[styles.editor_hint_item]
+foreground = "#bfbfbf"
+background = "#212121"
+
+[styles.editor_hint_selected]
+foreground = "#e0e0e0"
+background = "#3a3a3a"
+bold = true
+
+[styles.editor_hint_annotation]
+foreground = "#6b6b6b"
+background = "#212121"
+
+[styles.editor_diagnostic_warning]
+foreground = "#ffd59a"
+underline = true
+
+[styles.editor_diagnostic_error]
+foreground = "#f47c7c"
+underline = true
+
+# ── Explain ──────────────────────────────────────────────────────────
+[styles.explain_label]
+foreground = "#888888"
+
+[styles.explain_value]
+foreground = "#e0e0e0"
+
+[styles.explain_muted]
+foreground = "#6b6b6b"
+
+[styles.explain_section_title]
+foreground = "#e0e0e0"
+bold = true
+
+[styles.explain_section_border]
+foreground = "#2b2b2b"
+
+[styles.explain_badge_ready]
+foreground = "#101010"
+background = "#b2d99a"
+
+[styles.explain_badge_skipped]
+foreground = "#101010"
+background = "#888888"
+
+[styles.explain_badge_error]
+foreground = "#101010"
+background = "#f47c7c"
+
+[styles.explain_stage_ok]
+foreground = "#b2d99a"
+
+[styles.explain_stage_skipped]
+foreground = "#6b6b6b"
+
+[styles.explain_stage_error]
+foreground = "#f47c7c"
+
+[styles.explain_change_add]
+foreground = "#b2d99a"
+
+[styles.explain_change_remove]
+foreground = "#f47c7c"
+
+[styles.explain_change_update]
+foreground = "#ffb86b"
+
+[styles.explain_warning]
+foreground = "#ffd59a"
+
+# ── Streams (SSE / WebSocket) ────────────────────────────────────────
+[styles.stream_content]
+foreground = "#bfbfbf"
+
+[styles.stream_timestamp]
+foreground = "#6b6b6b"
+
+[styles.stream_direction_send]
+foreground = "#ffa07f"
+bold = true
+
+[styles.stream_direction_receive]
+foreground = "#7fe3ee"
+bold = true
+
+[styles.stream_direction_info]
+foreground = "#888888"
+
+[styles.stream_event_name]
+foreground = "#c3a6e0"
+
+[styles.stream_data]
+foreground = "#bfbfbf"
+
+[styles.stream_binary]
+foreground = "#888888"
+italic = true
+
+[styles.stream_summary]
+foreground = "#888888"
+
+[styles.stream_error]
+foreground = "#f47c7c"
+
+[styles.stream_console_title]
+foreground = "#e0e0e0"
+bold = true
+
+[styles.stream_console_mode]
+foreground = "#949494"
+
+[styles.stream_console_status]
+foreground = "#888888"
+
+[styles.stream_console_prompt]
+foreground = "#949494"
+bold = true
+
+[styles.stream_console_input]
+foreground = "#bfbfbf"
+background = "#151515"
+
+[styles.stream_console_input_focused]
+foreground = "#e0e0e0"
+background = "#1a1a1a"
+
+# ── Cores compartilhadas ─────────────────────────────────────────────
+[colors]
+# foco dos painéis em cinza, como no VS Code (a cor fica só no conteúdo)
+pane_border_focus_file = "#949494"
+pane_border_focus_requests = "#949494"
+pane_border_focus_editor = "#949494"
+pane_border_focus_response = "#949494"
+pane_active_foreground = "#e0e0e0"
+modal_backdrop = "#070707"
+modal_input_background = "#151515"
+modal_option = "#444444"
+git_branch = "#bfbfbf"
+git_modified = "#ffb86b"
+git_added = "#b2d99a"
+git_untracked = "#c9edb2"
+git_deleted = "#f47c7c"
+git_renamed = "#7fe3ee"
+git_conflict = "#ffa07f"
+method_get = "#b2d99a"
+method_post = "#ffb86b"
+method_put = "#7fe3ee"
+method_patch = "#c3a6e0"
+method_delete = "#f47c7c"
+method_head = "#888888"
+method_options = "#888888"
+method_grpc = "#7fe3ee"
+method_ws = "#c3a6e0"
+method_default = "#bfbfbf"
+
+# ── Highlight do editor (.http / .rts), com as cores dos tokens do VS Code ──
+[editor_metadata]
+comment_marker = "#6b6b6b"
+directive_default = "#ffa07f"
+value = "#b2d99a"
+setting_key = "#888888"
+setting_value = "#b2d99a"
+request_line = "#7fe3ee"
+request_separator = "#444444"
+rts_keyword_default = "#ffa07f"
+rts_keyword_decl = "#ffa07f"
+rts_keyword_control = "#ffa07f"
+rts_keyword_literal = "#c3a6e0"
+rts_keyword_logical = "#ffb86b"
+rts_function = "#7fe3ee"
+
+[editor_metadata.directive_colors]
+graphql = "#c3a6e0"
+workflow = "#ffb86b"
+assert = "#b2d99a"
+capture = "#7fe3ee"
+
+# ── Status bar (rodapé segmentado) ───────────────────────────────────
+[styles.status_bar]
+foreground = "#888888"
+
+[styles.status_bar_info]
+foreground = "#bfbfbf"
+
+[styles.status_bar_key]
+foreground = "#949494"
+bold = true
+
+[styles.status_bar_value]
+foreground = "#e0e0e0"
+
+[status_bar]
+# sem "base": células vazias ficam transparentes (respeita background-opacity do Ghostty)
+
+[status_bar.info]
+foreground = "#101010"
+background = "#949494"
+
+[status_bar.warn]
+foreground = "#101010"
+background = "#ffd59a"
+
+[status_bar.error]
+foreground = "#101010"
+background = "#f47c7c"
+
+[status_bar.success]
+foreground = "#101010"
+background = "#b2d99a"
+
+[status_bar.tests_pass]
+foreground = "#101010"
+background = "#b2d99a"
+
+[status_bar.tests_fail]
+foreground = "#101010"
+background = "#f47c7c"
+
+[status_bar.tests_error]
+foreground = "#101010"
+background = "#ffa07f"
+
+[status_bar.file]
+foreground = "#bfbfbf"
+background = "#252525"
+
+[status_bar.focus]
+foreground = "#e0e0e0"
+background = "#2b2b2b"
+
+[status_bar.mode]
+foreground = "#101010"
+background = "#949494"
+
+[status_bar.editor]
+foreground = "#888888"
+background = "#1a1a1a"
+
+[status_bar.mock]
+foreground = "#101010"
+background = "#c3a6e0"
+
+[status_bar.record]
+foreground = "#101010"
+background = "#f47c7c"
+
+[status_bar.zoom]
+foreground = "#101010"
+background = "#949494"
+
+[status_bar.minimized]
+foreground = "#bfbfbf"
+background = "#2b2b2b"
+
+[status_bar.version]
+foreground = "#6b6b6b"
+background = "#151515"
+
+[status_bar.user]
+foreground = "#bfbfbf"
+background = "#212121"
+
+[status_bar.host]
+foreground = "#888888"
+background = "#1a1a1a"

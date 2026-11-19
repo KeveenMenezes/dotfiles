@@ -1,0 +1,28 @@
+# Prometheus → Prometheus Lilás
+# Só as cores de destaque mudam: a mesma matiz do Prometheus em versão pastel e suave, à la
+# Catppuccin (o lilás vem do mauve/lavanda e da seleção). Os cinzas (fundo, superfícies, bordas,
+# textos) continuam exatamente os do Prometheus, por isso não estão aqui.
+# A tabela é bijetora: cada destino é único e nenhum aparece nos arquivos originais, então
+# `tema prometheus` desfaz byte a byte.
+# Colunas: prometheus<TAB>prom-lilas<TAB>papel
+#00d0ff	#6fd8ff	sky (destaque, cursor)
+#0d3640	#2f2a45	seleção
+#1a6080	#4f7fa0	azul escuro (starship)
+#1a9898	#5aa8a8	aqua escuro (starship)
+#23d18b	#a8dcb4	verde de string (nushell)
+#23d8ea	#7fe3ee	teal
+#29b8db	#6fc3e3	blue / sapphire
+#57e6f5	#a6eef5	ciano claro (ansi 14)
+#83a598	#9db8ad	aqua acinzentado (starship)
+#98c379	#b2d99a	green
+#a579c3	#c3a6e0	mauve
+#b5e890	#c9edb2	verde claro (ansi 10)
+#b88018	#c9a25e	amarelo escuro (starship)
+#c05520	#c47a58	laranja escuro (starship)
+#c89ee0	#d8bff0	lavender
+#e05555	#e88a92	maroon
+#f44747	#f47c7c	red
+#f47272	#f29a9a	vermelho (nushell)
+#ff7d4d	#ffa07f	peach
+#ff9e3b	#ffb86b	orange
+#ffc066	#ffd59a	yellow

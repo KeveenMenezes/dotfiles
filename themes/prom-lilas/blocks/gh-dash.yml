@@ -1,0 +1,16 @@
+theme:
+  colors:
+    text:
+      primary: "#bfbfbf"
+      secondary: "#949494"
+      inverted: "#101010"
+      faint: "#6b6b6b"
+      warning: "#ffd59a"
+      success: "#b2d99a"
+      error: "#f47c7c"
+    background:
+      selected: "#3a3a3a"
+    border:
+      primary: "#949494"
+      secondary: "#2b2b2b"
+      faint: "#212121"

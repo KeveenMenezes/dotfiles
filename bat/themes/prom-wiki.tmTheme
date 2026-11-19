@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Prom-Wiki (prom-wiki-2026-dark) para o bat e o delta: cores dos tokens da extensão do VS Code -->
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>prom-wiki</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>background</key><string>#101010</string>
+        <key>foreground</key><string>#bfbfbf</string>
+        <key>caret</key><string>#00d0ff</string>
+        <key>selection</key><string>#0d3640</string>
+        <key>lineHighlight</key><string>#252525</string>
+        <key>gutter</key><string>#101010</string>
+        <key>gutterForeground</key><string>#444444</string>
+        <key>invisibles</key><string>#2b2b2b</string>
+      </dict>
+    </dict>
+    <dict><key>name</key><string>Comentário</string><key>scope</key><string>comment, punctuation.definition.comment, markup.quote</string>
+      <key>settings</key><dict><key>foreground</key><string>#6b6b6b</string><key>fontStyle</key><string>italic</string></dict></dict>
+    <dict><key>name</key><string>Texto</string><key>scope</key><string>string, string.quoted, punctuation.definition.string, markup.inline.raw</string>
+      <key>settings</key><dict><key>foreground</key><string>#98c379</string></dict></dict>
+    <dict><key>name</key><string>Regex e escape</string><key>scope</key><string>string.regexp, constant.character.escape</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff9e3b</string></dict></dict>
+    <dict><key>name</key><string>Número e constante</string><key>scope</key><string>constant, constant.numeric, constant.language, support.constant, punctuation.definition.constant</string>
+      <key>settings</key><dict><key>foreground</key><string>#a579c3</string></dict></dict>
+    <dict><key>name</key><string>Palavra-chave</string><key>scope</key><string>keyword, keyword.control, storage, storage.modifier, meta.selector</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff7d4d</string></dict></dict>
+    <dict><key>name</key><string>Operador</string><key>scope</key><string>keyword.operator, punctuation.separator, punctuation.accessor</string>
+      <key>settings</key><dict><key>foreground</key><string>#888888</string></dict></dict>
+    <dict><key>name</key><string>Operador lógico e atribuição</string><key>scope</key><string>keyword.operator.logical, keyword.operator.assignment, keyword.operator.arithmetic, keyword.operator.comparison</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff9e3b</string></dict></dict>
+    <dict><key>name</key><string>Tipo e classe</string><key>scope</key><string>storage.type, entity.name.type, entity.name.class, entity.name.namespace, support.type, support.class, entity.other.inherited-class, support.type.primitive</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff9e3b</string></dict></dict>
+    <dict><key>name</key><string>Função</string><key>scope</key><string>entity.name.function, support.function, meta.function-call, variable.function, meta.require</string>
+      <key>settings</key><dict><key>foreground</key><string>#23d8ea</string></dict></dict>
+    <dict><key>name</key><string>Parâmetro</string><key>scope</key><string>variable.parameter</string>
+      <key>settings</key><dict><key>foreground</key><string>#888888</string></dict></dict>
+    <dict><key>name</key><string>Variável</string><key>scope</key><string>variable, variable.other, meta.property.object, meta.object-literal.key</string>
+      <key>settings</key><dict><key>foreground</key><string>#e0e0e0</string></dict></dict>
+    <dict><key>name</key><string>Variável da linguagem</string><key>scope</key><string>variable.language</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff9e3b</string></dict></dict>
+    <dict><key>name</key><string>Propriedade</string><key>scope</key><string>support.type.property-name, meta.mapping.key, meta.tag</string>
+      <key>settings</key><dict><key>foreground</key><string>#888888</string></dict></dict>
+    <dict><key>name</key><string>Chave JSON</string><key>scope</key><string>support.type.property-name.json, meta.structure.dictionary.key.json string</string>
+      <key>settings</key><dict><key>foreground</key><string>#e0e0e0</string></dict></dict>
+    <dict><key>name</key><string>Tag</string><key>scope</key><string>entity.name.tag</string>
+      <key>settings</key><dict><key>foreground</key><string>#e0e0e0</string></dict></dict>
+    <dict><key>name</key><string>Atributo</string><key>scope</key><string>entity.other.attribute-name</string>
+      <key>settings</key><dict><key>foreground</key><string>#a579c3</string></dict></dict>
+    <dict><key>name</key><string>Pontuação</string><key>scope</key><string>punctuation, meta.brace</string>
+      <key>settings</key><dict><key>foreground</key><string>#888888</string></dict></dict>
+    <dict><key>name</key><string>Inválido</string><key>scope</key><string>invalid, invalid.illegal</string>
+      <key>settings</key><dict><key>foreground</key><string>#f44747</string></dict></dict>
+    <dict><key>name</key><string>Título</string><key>scope</key><string>markup.heading, entity.name.section</string>
+      <key>settings</key><dict><key>foreground</key><string>#e0e0e0</string><key>fontStyle</key><string>bold</string></dict></dict>
+    <dict><key>name</key><string>Marcador de título</string><key>scope</key><string>markup.heading punctuation.definition.heading</string>
+      <key>settings</key><dict><key>foreground</key><string>#23d8ea</string></dict></dict>
+    <dict><key>name</key><string>Negrito</string><key>scope</key><string>markup.bold</string>
+      <key>settings</key><dict><key>foreground</key><string>#a579c3</string><key>fontStyle</key><string>bold</string></dict></dict>
+    <dict><key>name</key><string>Itálico</string><key>scope</key><string>markup.italic</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff7d4d</string><key>fontStyle</key><string>italic</string></dict></dict>
+    <dict><key>name</key><string>Link</string><key>scope</key><string>markup.underline.link, string.other.link</string>
+      <key>settings</key><dict><key>foreground</key><string>#23d8ea</string></dict></dict>
+    <dict><key>name</key><string>Diff: inserido</string><key>scope</key><string>markup.inserted</string>
+      <key>settings</key><dict><key>foreground</key><string>#98c379</string></dict></dict>
+    <dict><key>name</key><string>Diff: removido</string><key>scope</key><string>markup.deleted</string>
+      <key>settings</key><dict><key>foreground</key><string>#f44747</string></dict></dict>
+    <dict><key>name</key><string>Diff: alterado</string><key>scope</key><string>markup.changed</string>
+      <key>settings</key><dict><key>foreground</key><string>#ff9e3b</string></dict></dict>
+    <dict><key>name</key><string>Diff: cabeçalho</string><key>scope</key><string>meta.diff, meta.diff.header, meta.diff.range, meta.diff.header.from-file, meta.diff.header.to-file</string>
+      <key>settings</key><dict><key>foreground</key><string>#23d8ea</string></dict></dict>
+  </array>
+</dict>
+</plist>
