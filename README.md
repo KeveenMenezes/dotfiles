@@ -109,7 +109,8 @@ AeroSpace owns `alt-*` (workspaces, focus, modes) and wins over the terminal, so
 
 The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-crosses), layout in `img/crosses.svg`) sends these shortcuts in one press from the home position:
 
-- **Herdr prefix:** tap the left pinky outer home key (`ctrl+a`); hold it for Shift+Alt.
+- **Herdr prefix:** the key above the left pinky sends plain `ctrl+a`. The left pinky outer home key also sends `ctrl+a` on tap and Shift+Alt on hold.
+- **Spotlight:** the inner top key under the left index sends `⌘+Space`.
 - **Fluxo layer:** hold the left outer thumb (tapping it still gives sticky punctuation).
 	- **Left hand, herdr:**
 		- home row: zoom · notified agent · previous agent · next agent · workspace picker
@@ -117,7 +118,7 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
 	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0), plus the service/windows/resize/move/infra modes and the herdr splits on the outer column.
 - **Accents:** tap the sticky `Func` key, then one key for á é ê ã õ ç à, `ção` or `ões`. These use the dead keys of the macOS "Brazilian – Pro" input source.
-- **Trackball:** moving it turns on the Mouse layer, which puts the clicks on the left home row; the Snipe key in that layer slows the cursor down.
+- **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. That layer puts the clicks on the left home row, and its Snipe key slows the cursor down. The base layer has no mouse buttons: after a pause, nudge the ball before clicking.
 - **AeroSpace keeps priority:** the keyboard only sends `alt-*` shortcuts that it already binds.
 
 ### Claude Code setup
