@@ -2,20 +2,24 @@
 # worktree.created: leva para a worktree nova os arquivos locais que o git ignora e que o
 # projeto precisa para rodar (.env, .envrc, *.local, settings.local.json do Claude…).
 # Só copia o que existe na worktree principal e ainda não existe na nova; nunca sobrescreve.
+#
+#   evento do herdr (worktree.created):  sem argumentos, lê HERDR_PLUGIN_EVENT_JSON
+#   chamada direta (bin/task):            worktree-bootstrap.sh <worktree-nova>
 set -uo pipefail
 export PATH="/opt/homebrew/bin:$PATH"
 
-log() { printf '[worktree-bootstrap] %s\n' "$*"; }
+log() { printf '[worktree-bootstrap] %s\n' "$*" >&2; }
 
-event="${HERDR_PLUGIN_EVENT_JSON:-}"
-[[ -n $event ]] || { log "sem HERDR_PLUGIN_EVENT_JSON"; exit 0; }
-
-# o caminho da worktree nova: primeiro campo "path" que seja um diretório git
-new=""
-while read -r p; do
-    if [[ -d $p ]] && git -C "$p" rev-parse --is-inside-work-tree >/dev/null 2>&1; then new=$p; break; fi
-done < <(jq -r '[.. | objects | (.path?, .worktree_path?, .checkout_path?, .cwd?) | strings] | unique[]' <<<"$event" 2>/dev/null)
-[[ -n $new ]] || { log "não achei o caminho da worktree no evento: $event"; exit 0; }
+new="${1:-}"
+if [[ -z $new ]]; then
+    event="${HERDR_PLUGIN_EVENT_JSON:-}"
+    [[ -n $event ]] || { log "sem HERDR_PLUGIN_EVENT_JSON"; exit 0; }
+    # o caminho da worktree nova: primeiro campo "path" que seja um diretório git
+    while read -r p; do
+        if [[ -d $p ]] && git -C "$p" rev-parse --is-inside-work-tree >/dev/null 2>&1; then new=$p; break; fi
+    done < <(jq -r '[.. | objects | (.path?, .worktree_path?, .checkout_path?, .cwd?) | strings] | unique[]' <<<"$event" 2>/dev/null)
+    [[ -n $new ]] || { log "não achei o caminho da worktree no evento: $event"; exit 0; }
+fi
 
 # a worktree principal é a primeira da lista do git
 main=$(git -C "$new" worktree list --porcelain | awk '/^worktree /{print substr($0, 10); exit}')

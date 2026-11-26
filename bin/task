@@ -1,0 +1,441 @@
+#!/opt/homebrew/bin/bash
+# task — trabalho organizado por tarefa: uma pasta por tarefa (TASK.md + uma worktree por
+# repositório) e uma workspace do herdr por tarefa. Config local: ~/.config/task/config.sh
+#
+#   task list [--all] [--json]               tarefas (ativas por padrão)
+#   task open <id> [--no-agent] [--no-focus] foca a workspace da tarefa ou a monta (agente + abas)
+#   task new <ticket|-> <slug> --repo R [--repo R2…] [--base B] [--variant V] [--title T] [--no-open]
+#   task add-repo <id> <repo> [--base B] [--variant V] [--branch EXISTENTE]
+#   task close <id>                          confere (limpo + mergeado), confirma e remove as worktrees
+#   task migrate [--apply [arquivo]] [--include-busy] [--drop-links]
+#   task path <id>                           caminho da pasta da tarefa
+set -euo pipefail
+export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+
+SELF=$(readlink -f "${BASH_SOURCE[0]}")
+DOT=$(cd "$(dirname "$SELF")/.." && pwd)
+# shellcheck source=../task/lib.sh
+source "$DOT/task/lib.sh"
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/task"
+CONFIG="${TASK_CONFIG:-$CONFIG_DIR/config.sh}"
+TASK_BRANCH_PREFIX=feature
+TASK_AGENT_KIND=claude
+TASK_PROJECT_DIRS=()
+# shellcheck disable=SC1090
+[[ -f $CONFIG ]] && source "$CONFIG"
+[[ -n ${TASK_ROOT:-} && -n ${TASK_REPOS_DIR:-} ]] ||
+    die "configure $CONFIG (modelo: $DOT/task/config.sh.example)"
+BOOTSTRAP="$DOT/herdr/plugins/workflow/worktree-bootstrap.sh"
+DEFAULT_LAYOUT="$DOT/task/default-layout.sh"
+VARIANTS='dev|develop|main|master'
+
+# ── TASK.md ──────────────────────────────────────────────────────────────────
+fm_get() { # arquivo chave
+    awk -v k="$2" 'NR==1 && $0=="---"{f=1; next} f && $0=="---"{exit} f && index($0, k": ")==1 {sub(k": *", ""); gsub(/^"|"$/, ""); print; exit}' "$1"
+}
+
+fm_set() { # arquivo chave valor
+    local tmp
+    tmp=$(mktemp)
+    awk -v k="$2" -v v="$3" '
+        NR==1 && $0=="---" {f=1; print; next}
+        f && $0=="---" { if (!done) print k": "v; f=0; print; next }
+        f && index($0, k": ")==1 { print k": "v; done=1; next }
+        { print }' "$1" >"$tmp" && cat "$tmp" >"$1"
+    rm -f "$tmp"
+}
+
+task_dir() { printf '%s/%s' "$TASK_ROOT" "$1"; }
+task_label() { [[ $1 =~ ^([0-9]+)-(.+)$ ]] && printf '%s · %s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" || printf '%s' "$1"; }
+
+task_repos() { # id -> nomes das subpastas que são repositórios (worktree ou link para o principal)
+    local d e
+    d=$(task_dir "$1")
+    for e in "$d"/*; do
+        [[ -d $e && -e $e/.git ]] && basename "$e"
+    done
+}
+
+require_task() { [[ -f $(task_dir "$1")/TASK.md ]] || die "tarefa não encontrada: $1 (task list --all)"; }
+
+refresh_repos_block() { # id: reescreve a lista de repositórios do TASK.md a partir das pastas
+    local id=$1 md list r b
+    md="$(task_dir "$id")/TASK.md"
+    list=$(mktemp)
+    while read -r r; do
+        [[ -n $r ]] || continue
+        b=$(git -C "$(task_dir "$id")/$r" branch --show-current 2>/dev/null || true)
+        printf -- '- `%s` — %s\n' "$r" "${b:-?}" >>"$list"
+    done < <(task_repos "$id")
+    awk -v lf="$list" '
+        /<!-- repos:start -->/ {print; while ((getline l < lf) > 0) print l; skip=1; next}
+        /<!-- repos:end -->/ {skip=0}
+        !skip {print}' "$md" >"$md.tmp" && cat "$md.tmp" >"$md"
+    rm -f "$md.tmp" "$list"
+}
+
+write_task_files() { # id ticket title
+    local id=$1 ticket=$2 title=$3 d
+    d=$(task_dir "$id")
+    mkdir -p "$d"
+    if [[ ! -f $d/TASK.md ]]; then
+        cat >"$d/TASK.md" <<EOF
+---
+ticket: ${ticket:-}
+title: "$title"
+status: ativa
+created: $(date +%F)
+tags: [tarefa]
+---
+# $(task_label "$id")
+
+## Contexto
+
+
+## Repositórios
+<!-- repos:start -->
+<!-- repos:end -->
+
+## Decisões
+
+
+## Log
+- $(date '+%F %H:%M') tarefa criada
+EOF
+    fi
+    if [[ ! -f $d/CLAUDE.md ]]; then
+        cat >"$d/CLAUDE.md" <<EOF
+# Tarefa $(task_label "$id")
+
+Esta pasta reúne a tarefa: uma subpasta por repositório (worktree git no branch da tarefa).
+O contexto, as decisões e o log ficam no TASK.md:
+
+@TASK.md
+
+- Trabalhe dentro da subpasta do repositório certo; a raiz da tarefa é só para notas.
+- Registre decisões em "## Decisões" e marcos em "## Log" do TASK.md (\`- AAAA-MM-DD HH:MM texto\`).
+EOF
+    fi
+    refresh_repos_block "$id"
+}
+
+# ── worktrees ────────────────────────────────────────────────────────────────
+add_worktree() { # id ticket slug repo base variant branch_existente
+    local id=$1 ticket=$2 slug=$3 repo=$4 base=$5 variant=$6 branch=$7 main path name
+    main="$TASK_REPOS_DIR/$repo"
+    [[ -d $main/.git ]] || die "repositório principal não encontrado: $main"
+    name=$repo
+    [[ -n $variant ]] && name="$repo-$variant"
+    path="$(task_dir "$id")/$name"
+    [[ -e $path ]] && die "já existe: $path"
+    [[ -n $base ]] || base=$(git_default_base "$main")
+    if [[ -z $branch ]]; then
+        branch="$TASK_BRANCH_PREFIX/${ticket:+$ticket/}$slug${variant:+-$variant}"
+    fi
+    info "$repo: $branch (base $base)"
+    git -C "$main" fetch -q origin "$base" 2>/dev/null || warn "fetch de origin/$base falhou; usando o que há localmente"
+    mkdir -p "$(task_dir "$id")"
+    if git -C "$main" show-ref --verify --quiet "refs/heads/$branch"; then
+        git -C "$main" worktree add -q "$path" "$branch"
+    elif git -C "$main" fetch -q origin "$branch" 2>/dev/null && git -C "$main" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+        git -C "$main" worktree add -q --track -b "$branch" "$path" "origin/$branch"
+    else
+        git -C "$main" worktree add -q --no-track -b "$branch" "$path" "origin/$base"
+    fi
+    bash "$BOOTSTRAP" "$path" 2>&1 | sed 's/^/  /' >&2 || true
+}
+
+# ── comandos ─────────────────────────────────────────────────────────────────
+cmd_list() {
+    local all=0 json=0 d id md status ws_json rows=()
+    for a in "$@"; do case $a in --all) all=1 ;; --json) json=1 ;; esac; done
+    ws_json=$(hj workspace list || echo '{}')
+    for md in "$TASK_ROOT"/*/TASK.md; do
+        [[ -f $md ]] || continue
+        d=$(dirname "$md")
+        id=$(basename "$d")
+        status=$(fm_get "$md" status)
+        ((all)) || [[ $status == ativa ]] || continue
+        rows+=("$(jq -n --arg id "$id" --arg ticket "$(fm_get "$md" ticket)" --arg title "$(fm_get "$md" title)" \
+            --arg status "$status" --arg label "$(task_label "$id")" --arg dir "$d" \
+            --arg repos "$(task_repos "$id" | paste -sd, -)" --argjson ws "$ws_json" '
+            ($ws.result.workspaces // [] | map(select(.label == $label)) | first) as $w |
+            {id: $id, ticket: $ticket, title: $title, status: $status, label: $label, dir: $dir,
+             repos: ($repos | split(",") | map(select(. != ""))),
+             workspace: ($w.workspace_id // null), agents: ($w.agent_status // null)}')")
+    done
+    if ((json)); then
+        printf '%s\n' "${rows[@]}" | jq -s '.'
+    else
+        printf '%s\n' "${rows[@]}" | jq -r -s '.[] | [ (if .workspace then "●" else "○" end), .id, (.agents // "-"), (.repos | join(" ")), .title] | @tsv' |
+            column -t -s $'\t'
+    fi
+}
+
+repo_tab() { # ws id subpasta: cria a aba do repositório e aplica a receita do projeto
+    local ws=$1 id=$2 r=$3 d path rtab rpane main recipe
+    d=$(task_dir "$id")
+    path="$d/$r"
+    read -r rtab rpane < <(tab_create "$ws" "$path" "$r")
+    main=$(git_main_of "$path")
+    recipe="$CONFIG_DIR/layouts/$(basename "${main:-$r}").sh"
+    [[ -f $recipe ]] || recipe=$DEFAULT_LAYOUT
+    (
+        export TASK_ID=$id TASK_DIR=$d REPO_DIR=$path TAB_ID=$rtab ROOT_PANE=$rpane
+        REPO=$(basename "${main:-$r}")
+        export REPO
+        # shellcheck disable=SC1090
+        source "$recipe"
+    ) || warn "receita de layout falhou em $r ($recipe)"
+}
+
+cmd_open() {
+    local id="" agent=1 focus=1 d label ws tab pane ticket r
+    for a in "$@"; do
+        case $a in --no-agent) agent=0 ;; --no-focus) focus=0 ;; *) id=$a ;; esac
+    done
+    [[ -n $id ]] || die "uso: task open <id>"
+    require_task "$id"
+    d=$(task_dir "$id")
+    label=$(task_label "$id")
+    ws=$(ws_find "$label")
+    if [[ -n $ws ]]; then
+        if ((focus)); then hj workspace focus "$ws" >/dev/null || true; fi
+        info "workspace já aberta: $label"
+        return
+    fi
+    info "montando a workspace $label"
+    read -r ws tab pane < <(ws_create "$d" "$label")
+    [[ -n $ws && $ws != null ]] || die "o herdr não criou a workspace (o servidor está rodando?)"
+    hj tab rename "$tab" "agente" >/dev/null
+    pane_label "$pane" "agente"
+    while read -r r; do
+        [[ -n $r ]] && repo_tab "$ws" "$id" "$r"
+    done < <(task_repos "$id")
+    if ((focus)); then
+        hj tab focus "$tab" >/dev/null || true
+        hj workspace focus "$ws" >/dev/null || true
+    fi
+    if ((agent)); then
+        ticket=$(fm_get "$d/TASK.md" ticket)
+        agent_start "$pane" "t-$(slugify "${ticket:-$id}" | cut -c1-28)" || warn "o agente abriu, mas está esperando você na aba agente (ex.: confiar na pasta)"
+    fi
+}
+
+cmd_new() {
+    local ticket="" slug="" base="" variant="" title="" open=1 repos=() id r
+    while (($#)); do
+        case $1 in
+        --repo) repos+=("$2"); shift 2 ;;
+        --base) base=$2; shift 2 ;;
+        --variant) variant=$2; shift 2 ;;
+        --title) title=$2; shift 2 ;;
+        --no-open) open=0; shift ;;
+        *) if [[ -z $ticket ]]; then ticket=$1; elif [[ -z $slug ]]; then slug=$1; else die "argumento a mais: $1"; fi; shift ;;
+        esac
+    done
+    [[ $ticket == - ]] && ticket=""
+    [[ -n $title ]] || title=$slug
+    slug=$(slugify "$slug")
+    [[ -n $slug ]] || die "uso: task new <ticket|-> <slug> --repo R [--repo R2]"
+    ((${#repos[@]})) || die "informe ao menos um --repo"
+    id="${ticket:+$ticket-}$slug"
+    write_task_files "$id" "$ticket" "$title"
+    for r in "${repos[@]}"; do add_worktree "$id" "$ticket" "$slug" "$r" "$base" "$variant" ""; done
+    refresh_repos_block "$id"
+    info "tarefa pronta: $(task_dir "$id")"
+    if ((open)); then cmd_open "$id"; fi
+    return 0
+}
+
+cmd_add_repo() {
+    local id=${1:?uso: task add-repo <id> <repo>} repo=${2:?uso: task add-repo <id> <repo>} base="" variant="" branch="" ticket slug ws
+    shift 2
+    while (($#)); do
+        case $1 in
+        --base) base=$2; shift 2 ;;
+        --variant) variant=$2; shift 2 ;;
+        --branch) branch=$2; shift 2 ;;
+        *) die "opção desconhecida: $1" ;;
+        esac
+    done
+    require_task "$id"
+    ticket=$(fm_get "$(task_dir "$id")/TASK.md" ticket)
+    slug=${id#"$ticket"-}
+    add_worktree "$id" "$ticket" "$slug" "$repo" "$base" "$variant" "$branch"
+    refresh_repos_block "$id"
+    ws=$(ws_find "$(task_label "$id")")
+    if [[ -n $ws ]]; then
+        repo_tab "$ws" "$id" "$repo${variant:+-$variant}"
+        info "repositório adicionado e aba criada na workspace aberta"
+    else
+        info "repositório adicionado (aparece como aba quando você abrir a tarefa)"
+    fi
+}
+
+cmd_close() {
+    local id=${1:?uso: task close <id>} d r path b dirty merged pr blockers=0 unmerged=0 ws answer
+    require_task "$id"
+    d=$(task_dir "$id")
+    printf '%-34s %-48s %-7s %s\n' REPO BRANCH LIMPO MERGEADO
+    while read -r r; do
+        [[ -n $r ]] || continue
+        path="$d/$r"
+        if [[ -L $path ]]; then printf '%-34s %-48s %-7s %s\n' "$r" "(link para o principal)" - -; continue; fi
+        b=$(git -C "$path" branch --show-current)
+        dirty=$(git -C "$path" status --porcelain | wc -l | tr -d ' ')
+        pr=$(cd "$path" && gh pr view "$b" --json state -q .state 2>/dev/null || true)
+        merged=não
+        if [[ $pr == MERGED ]]; then merged=sim; else unmerged=$((unmerged + 1)); fi
+        [[ $dirty == 0 ]] || blockers=$((blockers + 1))
+        printf '%-34s %-48s %-7s %s\n' "$r" "$b" "$([[ $dirty == 0 ]] && echo sim || echo "não($dirty)")" "$merged${pr:+ ($pr)}"
+    done < <(task_repos "$id")
+    ((blockers == 0)) || die "há worktrees com mudanças pendentes; commite ou descarte antes de encerrar"
+    ((unmerged == 0)) || warn "$unmerged branch(es) sem PR mergeado; o código continua nos branches, só as worktrees saem"
+    printf '\nRemove as worktrees acima (os branches ficam) e fecha a workspace "%s", encerrando os processos e agentes dela. O TASK.md fica no vault.\n' "$(task_label "$id")"
+    read -rp "Digite o id da tarefa para confirmar: " answer
+    [[ $answer == "$id" ]] || die "cancelado"
+    ws=$(ws_find "$(task_label "$id")")
+    [[ -n $ws ]] && hj workspace close "$ws" >/dev/null
+    while read -r r; do
+        [[ -n $r ]] || continue
+        path="$d/$r"
+        if [[ -L $path ]]; then rm "$path"; continue; fi
+        git -C "$(git_main_of "$path")" worktree remove "$path" && info "removida: $r"
+    done < <(task_repos "$id")
+    fm_set "$d/TASK.md" status encerrada
+    fm_set "$d/TASK.md" closed "$(date +%F)"
+    printf -- '- %s tarefa encerrada\n' "$(date '+%F %H:%M')" >>"$d/TASK.md"
+    info "tarefa encerrada: $id"
+}
+
+# ── migração das worktrees soltas para pastas de tarefa ──────────────────────
+busy_paths() { lsof -a -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | sort -u; }
+
+migrate_plan() { # imprime TSV: acao repo origem tarefa nome branch pendentes ocupada
+    local main repo wt b base name variant key ticket slug dirty busy
+    declare -A ids=() used=()
+    local busy_list
+    busy_list=$(busy_paths)
+    printf 'acao\trepo\torigem\ttarefa\tnome\tbranch\tpendentes\tocupada\n'
+    for main in "$TASK_REPOS_DIR"/*/; do
+        main=${main%/}
+        [[ -d $main/.git ]] || continue
+        repo=$(basename "$main")
+        while IFS=$'\t' read -r wt b; do
+            [[ -n $wt ]] || continue
+            if [[ $wt == "$main" ]]; then
+                # repositório principal num branch de tarefa: entra como link
+                ticket=$(ticket_of "$b")
+                [[ -n $ticket ]] || continue
+                key=$ticket
+                slug=$(sed -E "s#^.*$ticket[/_-]?##; s#-($VARIANTS)\$##" <<<"$b")
+                [[ -n ${ids[$key]:-} ]] || ids[$key]="$ticket-$(slugify "$slug" | cut -c1-30)"
+                name=$repo
+                used[${ids[$key]}/$name]=1
+                printf 'link\t%s\t%s\t%s\t%s\t%s\t-\t-\n' "$repo" "$main" "${ids[$key]}" "$name" "$b"
+                continue
+            fi
+            if [[ $wt != "$TASK_REPOS_DIR"/* ]]; then
+                printf 'prune?\t%s\t%s\t-\t-\t%s\t-\t-\n' "$repo" "$wt" "${b:-detached}"
+                continue
+            fi
+            base=$(basename "$wt")
+            variant=""
+            if [[ $base =~ -($VARIANTS)$ ]]; then variant=${BASH_REMATCH[1]}
+            elif [[ $b =~ -($VARIANTS)$ ]]; then variant=${BASH_REMATCH[1]}; fi
+            ticket=$(ticket_of "$b")
+            if [[ -n $ticket ]]; then
+                key=$ticket
+                slug=$(sed -E "s#^.*$ticket[/_-]?##; s#-($VARIANTS)\$##" <<<"$b")
+            else
+                slug=${base#"$repo"-}
+                slug=$(sed -E "s#-($VARIANTS)\$##" <<<"$slug")
+                key=$slug
+            fi
+            [[ -n ${ids[$key]:-} ]] || ids[$key]="${ticket:+$ticket-}$(slugify "$slug" | cut -c1-30)"
+            name=$repo${variant:+-$variant}
+            if [[ -n ${used[${ids[$key]}/$name]:-} ]]; then name="$name-$(slugify "${base#"$repo"-}")"; fi
+            used[${ids[$key]}/$name]=1
+            dirty=$(git -C "$wt" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+            busy=-
+            grep -q -F "$wt" <<<"$busy_list" && busy=sim
+            printf 'move\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$repo" "$wt" "${ids[$key]}" "$name" "$b" "$dirty" "$busy"
+        done < <(git -C "$main" worktree list --porcelain | awk '
+            /^worktree /{w=substr($0, 10)} /^branch /{b=substr($0, 8); sub("refs/heads/", "", b)}
+            /^$/{if (w) print w "\t" b; w=""; b=""} END{if (w) print w "\t" b}')
+    done
+}
+
+cmd_migrate() {
+    local apply="" include_busy=0 drop=0 planfile="$CONFIG_DIR/migrate-plan.tsv"
+    while (($#)); do
+        case $1 in
+        --apply)
+            if [[ -n ${2:-} && ${2:-} != --* ]]; then apply=$2; shift 2; else apply=$planfile; shift; fi
+            ;;
+        --include-busy) include_busy=1; shift ;;
+        --drop-links) drop=1; shift ;;
+        *) die "opção desconhecida: $1" ;;
+        esac
+    done
+    if ((drop)); then
+        find "$TASK_REPOS_DIR" -maxdepth 1 -type l | while read -r l; do
+            [[ $(readlink "$l") == "$TASK_ROOT"/* ]] && rm "$l" && info "link removido: $l"
+        done
+        return
+    fi
+    if [[ -z $apply ]]; then
+        mkdir -p "$CONFIG_DIR"
+        migrate_plan >"$planfile"
+        column -t -s $'\t' "$planfile"
+        printf '\nPlano salvo em %s — edite tarefa/nome se quiser e rode: task migrate --apply\n' "$planfile" >&2
+        return
+    fi
+    [[ -f $apply ]] || die "plano não encontrado: $apply"
+    local action repo src id name b dirty busy dst after
+    while IFS=$'\t' read -r action repo src id name b dirty busy; do
+        case $action in
+        move)
+            [[ -d $src && ! -L $src ]] || { warn "pulando (não existe ou já é link): $src"; continue; }
+            if [[ $busy == sim && $include_busy == 0 ]] && busy_paths | grep -q -F "$src"; then
+                warn "pulando (há processos com cwd dentro): $src  → pare-os ou use --include-busy"
+                continue
+            fi
+            dst="$(task_dir "$id")/$name"
+            [[ -e $dst ]] && { warn "destino já existe, pulando: $dst"; continue; }
+            write_task_files "$id" "$(ticket_of "$b")" "$(sed -E "s#^[^/]*/##; s#^[0-9]+[/_-]##; s#-# #g" <<<"$b")"
+            git -C "$TASK_REPOS_DIR/$repo" worktree move "$src" "$dst"
+            ln -s "$dst" "$src"
+            after=$(git -C "$dst" status --porcelain | wc -l | tr -d ' ')
+            [[ $after == "$dirty" ]] || warn "$name: pendentes antes $dirty, depois $after — confira"
+            info "$src → $dst"
+            refresh_repos_block "$id"
+            ;;
+        link)
+            dst="$(task_dir "$id")/$name"
+            [[ -e $dst ]] && continue
+            write_task_files "$id" "$(ticket_of "$b")" "$(sed -E "s#^[^/]*/##; s#^[0-9]+[/_-]##; s#-# #g" <<<"$b")"
+            ln -s "$src" "$dst"
+            info "link: $dst → $src (repositório principal no branch da tarefa)"
+            refresh_repos_block "$id"
+            ;;
+        prune?) warn "não mexi: $src (worktree fora da pasta de repositórios; avalie git worktree prune)" ;;
+        esac
+    done < <(tail -n +2 "$apply")
+}
+
+cmd_path() { require_task "${1:?uso: task path <id>}"; task_dir "$1"; }
+
+case ${1:-help} in
+list | ls) shift; cmd_list "$@" ;;
+open) shift; cmd_open "$@" ;;
+new) shift; cmd_new "$@" ;;
+add-repo) shift; cmd_add_repo "$@" ;;
+close) shift; cmd_close "$@" ;;
+migrate) shift; cmd_migrate "$@" ;;
+path) shift; cmd_path "$@" ;;
+help | -h | --help) sed -n '2,13p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+*) die "comando desconhecido: $1 (task help)" ;;
+esac

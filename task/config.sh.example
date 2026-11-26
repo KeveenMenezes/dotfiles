@@ -1,0 +1,22 @@
+# Modelo de ~/.config/task/config.sh (o real não é versionado: tem caminhos do trabalho).
+#   mkdir -p ~/.config/task && cp task/config.sh.example ~/.config/task/config.sh
+
+# Onde ficam as pastas de tarefa (uma por tarefa: TASK.md + uma worktree por repositório).
+# Dentro de um vault do Obsidian, o TASK.md vira nota.
+TASK_ROOT="$HOME/Documents/empresa/tasks"
+
+# Onde ficam os clones principais dos repositórios (task new --repo <nome> usa $TASK_REPOS_DIR/<nome>)
+TASK_REPOS_DIR="$HOME/Documents/empresa/projects"
+
+# Pastas com projetos pessoais (aparecem no seletor como projeto, sem tarefa)
+TASK_PROJECT_DIRS=("$HOME/Documents/projects")
+
+# Branch criado por task new: <prefixo>/<ticket>/<slug>[-<variante>]
+TASK_BRANCH_PREFIX=feature
+
+# Agente iniciado na aba "agente" da tarefa (tipos: herdr agent start --help)
+TASK_AGENT_KIND=claude
+
+# Captura rápida fora de uma tarefa (task capture)
+TASK_INBOX="$HOME/Documents/empresa/Inbox.md"
+TASK_PERSONAL_INBOX="$HOME/Documents/projects/Inbox.md"
