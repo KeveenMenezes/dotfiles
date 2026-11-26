@@ -123,6 +123,8 @@ ctrl-alt-cmd-w = 'mode windows'
 ctrl-alt-cmd-m = 'mode move'
 
 ctrl-alt-cmd-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/dotfiles/aerospace/scripts/infra.sh'
+# microfone mudo/ligado (tecla "mic" do layer Func do teclado)
+ctrl-alt-cmd-shift-m = 'exec-and-forget /Users/keveenmenezes/Documents/projects/dotfiles/aerospace/scripts/mic-toggle.sh'
 
 [mode.service.binding]
 esc = 'mode main'
