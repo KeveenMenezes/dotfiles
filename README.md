@@ -123,7 +123,7 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
 	- **Right thumbs:** next agent · previous agent · notified agent.
 	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0) and the service/windows/resize/move/infra modes; outer column: floating shell · workspace picker · goto.
-- **Accents:** the sticky `Func` key, then one key for `ão` or `ões`. Other accents use the dead keys (`' ~ ^ \``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
+- **Accents:** the sticky `Func` key, then one key for `ão` or `ões`. Other accents use the dead keys (`'`, `~`, `^` and `` ` ``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
 - **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. Left home row in that layer: Snipe (slow, precise) · right click · Scroll (hold and roll the ball) · click · middle click. The base layer has no mouse keys: after a pause, nudge the ball first.
 - **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
 - **AeroSpace keeps priority:** the keyboard only sends `alt-*` shortcuts that it already binds.
