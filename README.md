@@ -30,6 +30,8 @@ This repository contains configuration files and scripts for customizing your de
 
 - **bin/pr-view** — PR panel for the terminal (fzf + delta): header with state, review, CI and size; Description, Checks, Comments and one entry per file with its diff in the preview; actions to open the task, review with Claude or open the browser. Used by Ctrl+click, `prefix ctrl+r` and gh-dash `V`.
 
+- **bin/kb-ota** — builds Bluetooth (OTA) firmware packages for the keyboard from the CI `.uf2` (see [Keyboard firmware over Bluetooth](#keyboard-firmware-over-bluetooth-no-cable)).
+
 - **bin/keymap-view** — text map of the keyboard layers, read from the keymap-drawer YAML of the keyboard repo (`prefix ctrl+k`).
 
 - **nvim/** — LazyVim config (linked to `~/.config/nvim`). The dashboard images are third-party art and stay out of the repo (`nvim/.gitignore`).
@@ -128,6 +130,22 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 - **Trackball:** moving it turns on the Mouse layer (ZMK `zip_temp_layer`) for 450 ms after the last movement, but only if no key was pressed in the previous 400 ms, so a ball that wobbles while typing does not trigger it. In that layer the left thumbs are right click · Scroll (hold and roll) · click; any other key turns the layer off and types normally. The base layer has no mouse keys.
 - **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
 - **AeroSpace vs herdr:** AeroSpace gets `ctrl+alt+⌘` from the Fluxo layer; `alt+1..9` (number layer + sticky Alt) switches herdr workspaces.
+
+### Keyboard firmware over Bluetooth (no cable)
+
+The keyboard's bootloader (Adafruit nRF52) can take firmware over Bluetooth. The `OTA` key of the
+`Func` layer (top outer corner of each side) reboots **that half** into the bootloader's Bluetooth mode:
+ZMK's reset behavior with `type = 0xA8`, the bootloader's `DFU_MAGIC_OTA_RESET`.
+
+1. Get the CI firmware into `~/Downloads/firmware-crosses/firmware/` (`gh run download …`).
+2. `kb-ota package` builds `~/Downloads/firmware-crosses/ota/crosses_{left,right}-ota.zip`. These are Nordic
+   legacy DFU packages: the image from `0x26000`, device type `0x0052`, SoftDevice `0xFFFE` and CRC16,
+   made with the Python standard library only. `kb-ota verify <zip>` checks a package.
+3. Send the zip to the phone (AirDrop), press `Func` + `OTA` on the half to update, then in the
+   **nRF Connect** app connect to the DFU device → DFU → choose the zip.
+
+If a transfer fails, the half stays in the bootloader: try again, or use the cable
+(double-tap reset, copy the `.uf2`). The cable is needed once, to install a firmware that has the `OTA` key.
 
 ## Tasks
 

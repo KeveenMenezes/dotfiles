@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""kb-ota — firmware do teclado (ZMK / nice!nano) por Bluetooth, sem cabo.
+
+Converte o .uf2 do CI no pacote de DFU "legacy" da Nordic que o Adafruit nRF52 Bootloader
+aceita por Bluetooth (o mesmo formato do `adafruit-nrfutil dfu genpkg`), só com a biblioteca
+padrão do Python. O envio é feito pelo app nRF Connect (iPhone/Android), função DFU.
+
+  kb-ota package [left|right|ambos] [--uf2 ARQ] [--out PASTA]   gera crosses_<lado>-ota.zip
+  kb-ota verify PACOTE.zip                                       confere manifesto, cabeçalho e CRC
+  kb-ota info ARQ.uf2                                            mostra endereços e tamanho
+
+Fluxo: Func + tecla OTA (canto superior externo do lado que vai atualizar) → o bootloader sobe
+em modo DFU por Bluetooth → nRF Connect: conectar no dispositivo DFU → DFU → escolher o .zip.
+
+Regras do bootloader (Adafruit_nRF52_Bootloader, src/dfu_init.c): device_type 0x0052,
+lista de SoftDevices com 0xFFFE ("qualquer"), extensão do init packet ≥ 2 bytes e, no fim,
+CRC16 (CCITT, init 0xFFFF — crc16_compute da Nordic) igual ao da imagem recebida.
+"""
+import argparse
+import binascii
+import json
+import pathlib
+import struct
+import sys
+import zipfile
+
+UF2_MAGIC_START0 = 0x0A324655
+UF2_MAGIC_START1 = 0x9E5D5157
+UF2_MAGIC_END = 0x0AB16F30
+UF2_FLAG_NOT_MAIN_FLASH = 0x00000001
+APP_START = 0x26000  # nice_nano no ZMK: o app começa depois do SoftDevice (0x0–0x26000)
+APP_END = 0xEC000  # início da partição de storage
+DEVICE_TYPE = 0x0052  # ADAFRUIT_DEVICE_TYPE
+DEVICE_REV = 0xFFFF
+APP_VERSION = 0xFFFFFFFF
+SD_ANY = 0xFFFE
+
+DEFAULT_DIR = pathlib.Path.home() / "Downloads" / "firmware-crosses"
+
+
+def die(msg):
+    sys.exit(f"kb-ota: {msg}")
+
+
+def crc16_nordic(data: bytes) -> int:
+    """crc16_compute da Nordic SDK (o que o bootloader usa); equivale ao CRC-16/CCITT-FALSE."""
+    crc = 0xFFFF
+    for b in data:
+        crc = ((crc >> 8) & 0xFF) | ((crc << 8) & 0xFFFF)
+        crc ^= b
+        crc ^= (crc & 0xFF) >> 4
+        crc ^= (crc << 12) & 0xFFFF
+        crc ^= ((crc & 0xFF) << 5) & 0xFFFF
+    return crc
+
+
+def uf2_to_bin(path: pathlib.Path):
+    """Remonta a imagem contínua (lacunas = 0xFF) a partir dos blocos de 512 bytes do UF2."""
+    raw = path.read_bytes()
+    if len(raw) % 512:
+        die(f"{path.name}: tamanho {len(raw)} não é múltiplo de 512 (não parece UF2)")
+    chunks, family = {}, None
+    for off in range(0, len(raw), 512):
+        blk = raw[off : off + 512]
+        m0, m1, flags, addr, size, _bno, _nblocks, fam = struct.unpack_from("<8I", blk, 0)
+        (mend,) = struct.unpack_from("<I", blk, 508)
+        if (m0, m1, mend) != (UF2_MAGIC_START0, UF2_MAGIC_START1, UF2_MAGIC_END):
+            die(f"{path.name}: bloco {off // 512} com assinatura UF2 inválida")
+        if flags & UF2_FLAG_NOT_MAIN_FLASH:
+            continue
+        if size > 476:
+            die(f"{path.name}: bloco {off // 512} com payload {size} > 476")
+        family = fam if flags & 0x2000 else family
+        chunks[addr] = blk[32 : 32 + size]
+    if not chunks:
+        die(f"{path.name}: nenhum bloco de flash")
+    start = min(chunks)
+    end = max(a + len(d) for a, d in chunks.items())
+    image = bytearray(b"\xff" * (end - start))
+    for a, d in chunks.items():
+        image[a - start : a - start + len(d)] = d
+    return start, bytes(image), family
+
+
+def sanity_check(start: int, image: bytes, label: str):
+    if start != APP_START:
+        die(f"{label}: começa em {start:#x}, esperado {APP_START:#x} (app do ZMK no nice!nano)")
+    if start + len(image) > APP_END:
+        die(f"{label}: termina em {start + len(image):#x}, passa do fim da área de app ({APP_END:#x})")
+    sp, reset = struct.unpack_from("<II", image, 0)
+    if not (0x20000000 <= sp <= 0x20040000):
+        die(f"{label}: stack pointer inicial {sp:#x} fora da RAM — imagem montada errada")
+    if not (start <= (reset & ~1) < start + len(image)):
+        die(f"{label}: reset handler {reset:#x} fora da imagem — imagem montada errada")
+    return sp, reset
+
+
+def init_packet(crc: int) -> bytes:
+    # dfu_init_packet_t: device_type, device_rev, app_version, softdevice_len, softdevice[], + extensão (CRC16)
+    return struct.pack("<HHIHH", DEVICE_TYPE, DEVICE_REV, APP_VERSION, 1, SD_ANY) + struct.pack("<H", crc)
+
+
+def build_package(uf2: pathlib.Path, out: pathlib.Path) -> dict:
+    start, image, family = uf2_to_bin(uf2)
+    sp, reset = sanity_check(start, image, uf2.name)
+    crc = crc16_nordic(image)
+    manifest = {
+        "manifest": {
+            "application": {
+                "bin_file": "application.bin",
+                "dat_file": "application.dat",
+                "init_packet_data": {
+                    "application_version": APP_VERSION,
+                    "device_revision": DEVICE_REV,
+                    "device_type": DEVICE_TYPE,
+                    "firmware_crc16": crc,
+                    "softdevice_req": [SD_ANY],
+                },
+            },
+            "dfu_version": 0.5,
+        }
+    }
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("manifest.json", json.dumps(manifest, indent=4))
+        z.writestr("application.bin", image)
+        z.writestr("application.dat", init_packet(crc))
+    return {"start": start, "size": len(image), "crc": crc, "sp": sp, "reset": reset, "family": family}
+
+
+def verify(pkg: pathlib.Path) -> dict:
+    with zipfile.ZipFile(pkg) as z:
+        man = json.loads(z.read("manifest.json"))["manifest"]["application"]
+        image = z.read(man["bin_file"])
+        dat = z.read(man["dat_file"])
+    dev_type, dev_rev, app_ver, sd_len = struct.unpack_from("<HHIH", dat, 0)
+    sds = list(struct.unpack_from(f"<{sd_len}H", dat, 10))
+    ext = dat[10 + 2 * sd_len :]
+    problems = []
+    if dev_type != DEVICE_TYPE:
+        problems.append(f"device_type {dev_type:#06x} ≠ {DEVICE_TYPE:#06x}")
+    if SD_ANY not in sds:
+        problems.append(f"lista de SoftDevices {sds} sem {SD_ANY:#06x}")
+    if len(ext) < 2:
+        problems.append("extensão do init packet com menos de 2 bytes (sem CRC16)")
+    else:
+        (crc_dat,) = struct.unpack_from("<H", ext, 0)
+        crc_img = crc16_nordic(image)
+        if crc_dat != crc_img:
+            problems.append(f"CRC16 do cabeçalho {crc_dat:#06x} ≠ CRC16 da imagem {crc_img:#06x}")
+        if man.get("init_packet_data", {}).get("firmware_crc16") not in (None, crc_img):
+            problems.append("firmware_crc16 do manifest diferente do CRC da imagem")
+    if problems:
+        die(f"{pkg.name}: " + "; ".join(problems))
+    return {"size": len(image), "crc": crc16_nordic(image), "sds": sds, "dev_type": dev_type}
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="kb-ota", description=__doc__.split("\n\n")[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("package")
+    p.add_argument("side", nargs="?", default="ambos", choices=["left", "right", "ambos"])
+    p.add_argument("--uf2", type=pathlib.Path)
+    p.add_argument("--out", type=pathlib.Path, default=DEFAULT_DIR / "ota")
+    v = sub.add_parser("verify")
+    v.add_argument("pkg", type=pathlib.Path)
+    i = sub.add_parser("info")
+    i.add_argument("uf2", type=pathlib.Path)
+    a = ap.parse_args()
+
+    # autoteste do CRC com o vetor padrão do CCITT-FALSE ("123456789" → 0x29B1)
+    assert crc16_nordic(b"123456789") == 0x29B1 == binascii.crc_hqx(b"123456789", 0xFFFF)
+
+    if a.cmd == "info":
+        start, image, family = uf2_to_bin(a.uf2)
+        sp, reset = sanity_check(start, image, a.uf2.name)
+        print(f"{a.uf2.name}: {start:#x}–{start + len(image):#x} ({len(image)} bytes), família {family:#x}, "
+              f"SP {sp:#x}, reset {reset:#x}, CRC16 {crc16_nordic(image):#06x}")
+    elif a.cmd == "verify":
+        r = verify(a.pkg)
+        print(f"{a.pkg.name}: ok — {r['size']} bytes, CRC16 {r['crc']:#06x}, device_type {r['dev_type']:#06x}, SoftDevices {r['sds']}")
+    else:
+        sides = ["left", "right"] if a.side == "ambos" else [a.side]
+        if a.uf2 and len(sides) > 1:
+            die("--uf2 vale para um lado só: kb-ota package right --uf2 ARQ")
+        for side in sides:
+            uf2 = a.uf2 or DEFAULT_DIR / "firmware" / f"crosses_{side}-nice_nano_v2-zmk.uf2"
+            if not uf2.exists():
+                die(f"não achei {uf2} (baixe o firmware do CI ou use --uf2)")
+            out = a.out / f"crosses_{side}-ota.zip"
+            r = build_package(uf2, out)
+            verify(out)
+            print(f"{side:5}: {out}  ({r['size']} bytes em {r['start']:#x}, CRC16 {r['crc']:#06x})")
+
+
+if __name__ == "__main__":
+    main()

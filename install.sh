@@ -162,7 +162,7 @@ fi
 
 # Tarefas (bin/task), painel de PR e mapa do teclado; config do task é local (caminhos do trabalho)
 echo -e "\n${GREEN}🗂️  Setting up task, pr-view and keymap-view...${NC}"
-for cmd in task pr-view keymap-view; do
+for cmd in task pr-view keymap-view kb-ota; do
     create_symlink "$DOTFILES_DIR/bin/$cmd" "$HOME/.local/bin/$cmd"
 done
 mkdir -p "$HOME/.config/task/layouts"
