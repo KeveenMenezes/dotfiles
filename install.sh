@@ -175,10 +175,25 @@ if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
     gh alias set co 'pr checkout' --clobber >/dev/null
 fi
 
+# Tarefas (bin/task), painel de PR e mapa do teclado; config do task é local (caminhos do trabalho)
+echo -e "\n${GREEN}🗂️  Setting up task, pr-view and keymap-view...${NC}"
+for cmd in task pr-view keymap-view; do
+    create_symlink "$DOTFILES_DIR/bin/$cmd" "$HOME/.local/bin/$cmd"
+done
+mkdir -p "$HOME/.config/task/layouts"
+if [ ! -e "$HOME/.config/task/config.sh" ]; then
+    cp "$DOTFILES_DIR/task/config.sh.example" "$HOME/.config/task/config.sh"
+    echo -e "${YELLOW}📝 Edit ~/.config/task/config.sh (TASK_ROOT, TASK_REPOS_DIR); recipes go in ~/.config/task/layouts/<repo>.sh${NC}"
+fi
+
+# Neovim (LazyVim). As imagens do dashboard não são versionadas (nvim/.gitignore)
+echo -e "\n${GREEN}📝 Setting up Neovim...${NC}"
+[ -L "$HOME/.config/nvim" ] || create_symlink "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+
 # Hook de pre-commit deste repo (gitleaks + URL com senha embutida)
 git -C "$DOTFILES_DIR" config core.hooksPath .githooks
 
-for tool in nu starship atuin zoxide direnv fzf delta lazygit colima carapace gh lazysql lazydocker gitleaks; do
+for tool in nu starship atuin zoxide direnv fzf delta lazygit colima carapace gh lazysql lazydocker gitleaks sketchybar uv; do
     command -v "$tool" >/dev/null 2>&1 || echo -e "${YELLOW}⚠️  $tool not found — brew install $tool${NC}"
 done
 

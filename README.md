@@ -34,6 +34,16 @@ This repository contains configuration files and scripts for customizing your de
 
 - **claude/skills/** — Claude Code skills linked into `~/.claude/skills`: `background-panes` (live panes for background jobs) and `multi-agent-panes` (one monitor pane per subagent). The official `herdr` skill is generated from the installed binary, not versioned.
 
+- **bin/task** + **task/** — work organized by task (see [Tasks](#tasks)). `task/lib.sh` holds the herdr/git helpers, `task/default-layout.sh` the generic per-repo layout, `task/config.sh.example` the template for `~/.config/task/config.sh`.
+
+- **bin/pr-view** — PR panel for the terminal (fzf + delta): header with state, review, CI and size; Description, Checks, Comments and one entry per file with its diff in the preview; actions to open the task, review with Claude or open the browser. Used by Ctrl+click, `prefix ctrl+r` and gh-dash `V`.
+
+- **bin/keymap-view** — text map of the keyboard layers, read from the keymap-drawer YAML of the keyboard repo (`prefix ctrl+k`).
+
+- **nvim/** — LazyVim config (linked to `~/.config/nvim`). The dashboard images are third-party art and stay out of the repo (`nvim/.gitignore`).
+
+- **sketchbar/** — SketchyBar (top bar; the macOS menu bar auto-hides). AeroSpace workspaces read from its own bindings and updated by its events (no polling); `items/herdr.sh` adds the focused herdr workspace (task), agents by state (⚠ blocked · ✓ done · ◐ working; click focuses who needs you) and the Claude plan quota.
+
 - **bin/lazysql-kc** — opens lazysql with the `${env:NAME}` placeholders of its config filled from the macOS Keychain (service `lazysql`). `lazysql-kc set NAME` stores a secret, `lazysql-kc list` shows which are present.
 
 - **lazysql/** — `config.toml.example`: template for `~/Library/Application Support/lazysql/config.toml`. The real file is not linked: lazysql writes saved connections into it.
@@ -99,7 +109,10 @@ AeroSpace owns `alt-*` (workspaces, focus, modes) and wins over the terminal, so
 | `prefix f` | Floating shell popup |
 | `prefix ctrl+g` / `prefix ctrl+d` | lazygit / lazydocker popup |
 | `prefix ctrl+s` / `prefix ctrl+p` | lazysql (secrets from Keychain) / gh dash popup |
-| `prefix ctrl+r` | PR of the focused pane's branch (popup: `c` checks, `d` diff, `w` browser) |
+| `prefix ctrl+t` | Task picker: tasks, projects, zoxide folders (`ctrl-n` new task, `ctrl-x` close task) |
+| `prefix ctrl+n` | Quick capture: one line into the current task's log, or the Inbox |
+| `prefix ctrl+k` | Keyboard map (←/→ switch layers) |
+| `prefix ctrl+r` | Panel of the PR of the focused pane's branch (`pr-view`) |
 | Ctrl+click on a GitHub PR/issue link | Same popup for that PR/issue |
 | `prefix [` | Copy mode (`v` select, `y` copy) |
 | `prefix q` | Detach |
@@ -114,12 +127,34 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 - **Fluxo layer:** hold the left outer thumb (tapping it still gives sticky punctuation).
 	- **Left hand, herdr:**
 		- home row: zoom · notified agent · previous agent · next agent · workspace picker
-		- top row: help · new tab · previous/next tab · goto · floating shell
+		- outer column: task picker · quick capture · keyboard map
+		- top row: new tab · previous/next tab · goto · floating shell
 		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
 	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0), plus the service/windows/resize/move/infra modes and the herdr splits on the outer column.
 - **Accents:** tap the sticky `Func` key, then one key for á é ê ã õ ç à, `ção` or `ões`. These use the dead keys of the macOS "Brazilian – Pro" input source.
 - **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. That layer puts the clicks on the left home row, and its Snipe key slows the cursor down. The base layer has no mouse buttons: after a pause, nudge the ball before clicking.
+- **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
 - **AeroSpace keeps priority:** the keyboard only sends `alt-*` shortcuts that it already binds.
+
+## Tasks
+
+A task (ticket) is the unit of navigation; a project (repository) is only a layout recipe.
+
+- **Folder:** `$TASK_ROOT/<ticket>-<slug>/` holds `TASK.md` (an Obsidian note when `TASK_ROOT` lives in a vault, and agent context: frontmatter, Context, Repositories, Decisions, Log), a `CLAUDE.md` that imports it, and one git worktree per repository on `feature/<ticket>/<slug>` (variants such as `-develop` get their own folder). A repository whose main clone is already on the task branch is linked instead.
+- **herdr workspace** `<ticket> · <slug>`: an `agente` tab at the task root (sees every repository) plus one tab per repository with its layout. The layout comes from `~/.config/task/layouts/<repo>.sh` or the default, which leaves the run command typed (not executed) so open tasks don't fight over ports.
+
+| Command | What it does |
+| --- | --- |
+| `task new <ticket\|-> "<title>" --repo R [--repo R2] [--base B] [--variant V]` | Folder, worktrees + branches, `.env*` copied, `TASK.md`, workspace |
+| `task open <id>` / `task list [--all]` | Focus or build the workspace / list tasks with their herdr state |
+| `task add-repo <id> <repo> [--variant V \| --branch B]` | One more worktree; the tab appears at once if the workspace is open |
+| `task review <owner/repo> <pr> [--review]` | Task of a PR (ticket from the branch), creating it if needed; `--review` opens Claude on `/code-review` |
+| `task new-from-issue <owner/repo> <issue>` | Task from an issue (title via `gh`) |
+| `task capture [text]` | Line in the current task's log, else the Inbox |
+| `task close <id>` | Refuses with pending changes; shows merge state; asks for the id; removes the worktrees (branches stay) and closes the workspace; `TASK.md` stays with `status: encerrada` |
+| `task migrate [--apply] [--drop-links]` | One-off: moves loose sibling worktrees into task folders, leaving compatibility links at the old paths |
+
+gh-dash keys: `T` open the PR's task, `I` review it with Claude, `V` PR panel, `N` (issue) new task.
 
 ### Claude Code setup
 
