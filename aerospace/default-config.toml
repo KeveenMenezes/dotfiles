@@ -104,23 +104,25 @@ alt-k = 'focus up'
 alt-l = 'focus right'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-alt-0 = 'workspace web'
-alt-1 = 'workspace code'
-alt-2 = 'workspace infra'
-alt-3 = 'workspace term'
-alt-4 = 'workspace chat'
-alt-5 = 'workspace devops'
-alt-6 = 'workspace music'
-alt-7 = 'workspace observability'
-alt-8 = 'workspace obsidian'
-alt-9 = 'workspace scratch'
+# Workspaces, modos e o script de infra usam ctrl+alt+⌘ (enviado pela camada Fluxo do teclado);
+# alt+1..9 fica livre para o herdr (workspace/tarefa N). alt-h/j/k/l continua aqui.
+ctrl-alt-cmd-0 = 'workspace web'
+ctrl-alt-cmd-1 = 'workspace code'
+ctrl-alt-cmd-2 = 'workspace infra'
+ctrl-alt-cmd-3 = 'workspace term'
+ctrl-alt-cmd-4 = 'workspace chat'
+ctrl-alt-cmd-5 = 'workspace devops'
+ctrl-alt-cmd-6 = 'workspace music'
+ctrl-alt-cmd-7 = 'workspace observability'
+ctrl-alt-cmd-8 = 'workspace obsidian'
+ctrl-alt-cmd-9 = 'workspace scratch'
 
-alt-s = 'mode service'
-alt-r = 'mode resize'
-alt-w = 'mode windows'
-alt-m = 'mode move'
+ctrl-alt-cmd-s = 'mode service'
+ctrl-alt-cmd-r = 'mode resize'
+ctrl-alt-cmd-w = 'mode windows'
+ctrl-alt-cmd-m = 'mode move'
 
-alt-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/dotfiles/aerospace/scripts/infra.sh'
+ctrl-alt-cmd-shift-i = 'exec-and-forget /Users/keveenmenezes/Documents/projects/dotfiles/aerospace/scripts/infra.sh'
 
 [mode.service.binding]
 esc = 'mode main'

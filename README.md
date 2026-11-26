@@ -81,7 +81,7 @@ gitleaks git . --no-banner --redact && gitleaks dir . --no-banner --redact
 
 Ghostty opens straight into herdr; closing the window only detaches, agents keep running.
 Prefix is `ctrl+a` (herdr's default is `ctrl+b`; `prefix ?` shows every key).
-AeroSpace owns `alt-*` (workspaces, focus, modes) and wins over the terminal, so every herdr binding stays behind the prefix.
+AeroSpace keeps only `alt-h/j/k/l` (window focus); its workspaces, modes and infra script use `ctrl+alt+⌘` (sent by the keyboard's Fluxo layer), which leaves `alt+1..9` to herdr.
 
 | Keys | Action |
 | --- | --- |
@@ -92,7 +92,7 @@ AeroSpace owns `alt-*` (workspaces, focus, modes) and wins over the terminal, so
 | `prefix w` / `prefix g` | Workspace picker / goto |
 | `prefix shift+n` | New workspace |
 | `prefix a` / `prefix shift+a` | Next / previous agent (sidebar is sorted by attention: blocked first) |
-| `prefix shift+1..9` | Switch to workspace N |
+| `alt+1..9` | Switch to herdr workspace N (= task N) |
 | `prefix shift+g` / `prefix ctrl+o` / `prefix ctrl+x` | New / open / remove git worktree (as a workspace) |
 | `prefix o` | Jump to the agent from the last notification |
 | `prefix b` | Toggle sidebar |
@@ -122,11 +122,11 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 		- home row: move between panes ← ↓ ↑ → (h/j/k/l) · zoom
 		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
 	- **Right thumbs:** next agent · previous agent · notified agent.
-	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0) and the service/windows/resize/move/infra modes; outer column: floating shell · workspace picker · goto.
+	- **Right hand, AeroSpace** (sent as `ctrl+alt+⌘`): workspaces on the same keys as the digits of the number layer (code 1 … scratch 9, web 0) and the service/windows/resize/move/infra modes; outer column: floating shell · workspace picker · goto.
 - **Accents:** the sticky `Func` key, then one key for `ão` or `ões`. Other accents use the dead keys (`'`, `~`, `^` and `` ` ``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
 - **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. Left home row in that layer: Snipe (slow, precise) · right click · Scroll (hold and roll the ball) · click · middle click. The base layer has no mouse keys: after a pause, nudge the ball first.
 - **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
-- **AeroSpace keeps priority:** the keyboard only sends `alt-*` shortcuts that it already binds.
+- **AeroSpace vs herdr:** AeroSpace gets `ctrl+alt+⌘` from the Fluxo layer; `alt+1..9` (number layer + sticky Alt) switches herdr workspaces.
 
 ## Tasks
 

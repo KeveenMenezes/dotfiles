@@ -42,9 +42,9 @@ new_cwd = "follow"
 prefix = "ctrl+a"
 next_agent = "prefix+a"
 previous_agent = "prefix+shift+a"
-# alt+* é do AeroSpace (alt-1..9 workspaces, alt-h/j/k/l foco, alt-s/r/w/m modos) e ele tem
-# prioridade: atalhos do herdr ficam sempre atrás do prefixo ctrl+a.
-switch_workspace = "prefix+shift+1..9"
+# alt+1..9: workspace N do herdr (= tarefa N). O AeroSpace usa ctrl+alt+⌘ para workspaces e modos
+# (o teclado manda isso pelo Fluxo) e só mantém alt-h/j/k/l, que o herdr não deve usar.
+switch_workspace = "alt+1..9"
 # worktrees: prefix+shift+g cria (padrão); estes abrem uma existente / removem a checkout
 open_worktree = "prefix+ctrl+o"
 remove_worktree = "prefix+ctrl+x"
