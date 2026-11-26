@@ -1,0 +1,21 @@
+# lazysql — modelo de ~/Library/Application Support/lazysql/config.toml
+#
+# O arquivo real NÃO é versionado nem linkado: o lazysql grava nele as conexões que você
+# salva pela interface, e este repositório é público. Copie este modelo uma vez:
+#
+#   cp lazysql/config.toml.example ~/Library/Application\ Support/lazysql/config.toml
+#
+# Senhas nunca entram no arquivo: use ${env:NOME} e guarde o valor no Keychain com
+# `lazysql-kc set NOME`. O `lazysql-kc` (bin/) lê do Keychain e abre o lazysql; o herdr
+# abre ele em popup com prefix+ctrl+s. Ao salvar uma conexão, o lazysql 0.7+ preserva
+# os placeholders ${env:...} que você não alterou.
+
+[[database]]
+Name = 'Exemplo DEV (túnel 15432)'
+Provider = 'postgres'
+DBName = 'app'
+URL = 'postgres://app_user:${env:LAZYSQL_EXEMPLO_DEV_PASSWORD}@127.0.0.1:15432/app?sslmode=disable'
+ReadOnly = true
+
+[theme]
+Preset = 'solarized-light'

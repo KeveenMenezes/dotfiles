@@ -1,0 +1,38 @@
+# gh-dash — modelo de ~/.config/gh-dash/config.yml
+#
+# O arquivo real não é versionado (tem a org e os caminhos do trabalho; este repositório é
+# público). O install.sh copia este modelo quando ainda não existe um config; troque SUA_ORG
+# e os caminhos. As cores entram pelo bloco "tema" (rode `tema prometheus` ou `tema lilas`).
+# No herdr: prefix+ctrl+p abre o gh-dash em popup.
+# Referência: https://www.gh-dash.dev/configuration/
+
+
+prSections:
+  - title: Meus PRs
+    filters: is:open author:@me org:SUA_ORG
+  - title: Revisão pedida
+    filters: is:open review-requested:@me org:SUA_ORG
+  - title: Envolvido
+    filters: is:open involves:@me -author:@me org:SUA_ORG
+  - title: Mergeados (7 dias)
+    filters: is:merged author:@me org:SUA_ORG merged:>={{ nowModify "-1w" }}
+
+issuesSections:
+  - title: Atribuídas a mim
+    filters: is:open assignee:@me org:SUA_ORG
+
+# Sem isso, aberto dentro de um repo ele filtra só aquele repo; aqui queremos a org toda
+smartFilteringAtLaunch: false
+
+defaults:
+  view: prs
+  prsLimit: 20
+  issuesLimit: 20
+  refetchIntervalMinutes: 5
+  preview:
+    open: true
+    width: 70
+
+# Onde fica o clone local de cada repo (usado no checkout pelo painel)
+repoPaths:
+  SUA_ORG/*: ~/code/SUA_ORG/*

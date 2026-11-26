@@ -11,5 +11,10 @@ foreground = #b6b6b6
 # O shell dos painéis (nushell) é definido no config.toml do herdr (default_shell).
 command = /usr/bin/env EDITOR=/opt/homebrew/bin/nvim /opt/homebrew/bin/herdr
 
+# Option esquerdo funciona como Alt (fzf Alt+C no nushell); o direito continua digitando símbolos.
+# Acentos não dependem dele no layout Brazilian – Pro (teclas mortas). Os alt-* do AeroSpace
+# continuam com prioridade: ele captura a tecla antes do Ghostty.
+macos-option-as-alt = left
+
 # Fechar a janela só desanexa do herdr; a sessão e os agents continuam rodando.
 confirm-close-surface = false

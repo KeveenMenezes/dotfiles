@@ -42,6 +42,12 @@ new_cwd = "follow"
 prefix = "ctrl+a"
 next_agent = "prefix+a"
 previous_agent = "prefix+shift+a"
+# alt+* é do AeroSpace (alt-1..9 workspaces, alt-h/j/k/l foco, alt-s/r/w/m modos) e ele tem
+# prioridade: atalhos do herdr ficam sempre atrás do prefixo ctrl+a.
+switch_workspace = "prefix+shift+1..9"
+# worktrees: prefix+shift+g cria (padrão); estes abrem uma existente / removem a checkout
+open_worktree = "prefix+ctrl+o"
+remove_worktree = "prefix+ctrl+x"
 
 [[keys.command]]
 key = "prefix+ctrl+g"
@@ -58,6 +64,31 @@ command = "/opt/homebrew/bin/lazydocker"
 description = "lazydocker"
 width = "90%"
 height = "90%"
+
+# senhas vêm do Keychain (bin/lazysql-kc); roda no cwd da pane, então acha o .lazysql.toml do projeto
+[[keys.command]]
+key = "prefix+ctrl+s"
+type = "popup"
+command = "~/.local/bin/lazysql-kc"
+description = "lazysql"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+ctrl+p"
+type = "popup"
+command = "/opt/homebrew/bin/gh dash"
+description = "gh dash (PRs)"
+width = "95%"
+height = "90%"
+
+# plugin keveen.workflow (herdr/plugins/workflow): PR do branch da pane atual em popup.
+# Ctrl+clique em link de PR/issue do GitHub abre o mesmo popup.
+[[keys.command]]
+key = "prefix+ctrl+r"
+type = "plugin_action"
+command = "keveen.workflow.current-pr"
+description = "PR do branch atual"
 
 [[keys.command]]
 key = "prefix+f"
@@ -77,6 +108,8 @@ agent_panel_sort = "priority"
 status_indicators = "symbols"
 show_agent_labels_on_pane_borders = true
 prompt_new_tab_name = false
+# título da janela do Ghostty (AeroSpace, Mission Control, cmd+tab)
+window_title = "herdr · {workspace} · {tab}"
 
 # barra de abas: zoom + cota do plano Claude (5h / 7d), gravada pelo statusLine do Claude Code
 tab_bar_right = [

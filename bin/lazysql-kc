@@ -1,0 +1,70 @@
+#!/bin/bash
+# lazysql com segredos do Keychain do macOS.
+#
+# O config do lazysql guarda placeholders ${env:NOME} em vez de senhas. Este wrapper acha
+# esses nomes no config global (e no .lazysql.toml do projeto, se houver), lê cada um do
+# Keychain (serviço "lazysql", conta = NOME) e só então abre o lazysql.
+#
+#   lazysql-kc [args do lazysql]     abre o lazysql (ex.: lazysql-kc -read-only)
+#   lazysql-kc set NOME              grava/atualiza o segredo NOME no Keychain (pede o valor)
+#   lazysql-kc list                  lista os placeholders do config e se cada um está no Keychain
+set -euo pipefail
+
+SERVICE=lazysql
+CONFIG="${XDG_CONFIG_HOME:-$HOME/Library/Application Support}/lazysql/config.toml"
+
+configs() {
+    [[ -f $CONFIG ]] && printf '%s\n' "$CONFIG"
+    # mesmo critério do lazysql: sobe do diretório atual até a raiz do repositório
+    local dir=$PWD
+    while :; do
+        [[ -f $dir/.lazysql.toml ]] && { printf '%s\n' "$dir/.lazysql.toml"; break; }
+        [[ -e $dir/.git || $dir == / ]] && break
+        dir=$(dirname "$dir")
+    done
+}
+
+placeholders() {
+    local files=()
+    while IFS= read -r f; do files+=("$f"); done < <(configs)
+    ((${#files[@]})) || return 0
+    grep -ho '\${env:[A-Za-z_][A-Za-z0-9_]*}' "${files[@]}" | sed 's/^\${env://; s/}$//' | sort -u || true
+}
+
+keychain_get() { security find-generic-password -s "$SERVICE" -a "$1" -w 2>/dev/null; }
+
+case "${1:-}" in
+set)
+    name="${2:?uso: lazysql-kc set NOME}"
+    read -rsp "valor de $name: " value
+    echo
+    security add-generic-password -U -s "$SERVICE" -a "$name" -l "lazysql: $name" -w "$value"
+    echo "gravado no Keychain (serviço $SERVICE, conta $name)"
+    exit 0
+    ;;
+list)
+    while read -r name; do
+        [[ -n $name ]] || continue
+        if keychain_get "$name" >/dev/null; then echo "ok       $name"; else echo "ausente  $name"; fi
+    done < <(placeholders)
+    exit 0
+    ;;
+esac
+
+missing=()
+while read -r name; do
+    [[ -n $name ]] || continue
+    [[ -n ${!name:-} ]] && continue # já veio do ambiente (direnv, por exemplo)
+    if value=$(keychain_get "$name"); then
+        export "$name=$value"
+    else
+        missing+=("$name")
+    fi
+done < <(placeholders)
+
+if ((${#missing[@]})); then
+    printf 'aviso: sem valor no Keychain para: %s (grave com: lazysql-kc set NOME)\n' "${missing[*]}" >&2
+    sleep 2
+fi
+
+exec /opt/homebrew/bin/lazysql "$@"

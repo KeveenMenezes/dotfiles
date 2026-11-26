@@ -77,10 +77,25 @@ echo -e "\n${GREEN}🐑 Setting up herdr configuration...${NC}"
 HERDR_CONFIG_DIR="$HOME/.config/herdr"
 create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HERDR_CONFIG_DIR/config.toml"
 create_symlink "$DOTFILES_DIR/herdr/scripts" "$HERDR_CONFIG_DIR/scripts"
-if ! command -v herdr >/dev/null 2>&1; then
+if command -v herdr >/dev/null 2>&1; then
+    # plugin local: preview de PR/issue, bootstrap de worktree, sync da skill do herdr
+    herdr plugin list 2>/dev/null | grep -q 'keveen.workflow' || herdr plugin link "$DOTFILES_DIR/herdr/plugins/workflow"
+    [ -d "$HOME/.claude" ] && herdr integration install claude >/dev/null
+else
     echo -e "${YELLOW}⚠️  herdr not found — install it with: brew install herdr${NC}"
 fi
-echo -e "${YELLOW}🤖 Claude Code: run 'herdr integration install claude' and set statusLine (see README)${NC}"
+echo -e "${YELLOW}🤖 Claude Code: set statusLine (see README)${NC}"
+
+# Claude Code skills (as do herdr; a oficial é gerada pelo binário instalado)
+echo -e "\n${GREEN}🤖 Setting up Claude Code skills...${NC}"
+for skill in "$DOTFILES_DIR"/claude/skills/*/; do
+    skill=$(basename "$skill")
+    [ -L "$HOME/.claude/skills/$skill" ] || create_symlink "$DOTFILES_DIR/claude/skills/$skill" "$HOME/.claude/skills/$skill"
+done
+if command -v herdr >/dev/null 2>&1; then
+    mkdir -p "$HOME/.claude/skills/herdr"
+    herdr --skill > "$HOME/.claude/skills/herdr/SKILL.md"
+fi
 
 # Nushell Configuration
 echo -e "\n${GREEN}🐚 Setting up Nushell configuration...${NC}"
@@ -99,6 +114,11 @@ if command -v starship >/dev/null 2>&1; then
 fi
 if command -v zoxide >/dev/null 2>&1; then
     zoxide init nushell > "$HOME/.zoxide.nu"
+fi
+# carapace no vendor/autoload: carrega antes do _fzf_integration, que o envolve (fzf no `**`, carapace no resto)
+if command -v carapace >/dev/null 2>&1; then
+    mkdir -p "$NU_CONFIG_DIR/vendor/autoload"
+    carapace _carapace nushell > "$NU_CONFIG_DIR/vendor/autoload/carapace.nu"
 fi
 if [ ! -e "$NU_CONFIG_DIR/autoload/local.nu" ]; then
     echo -e "${YELLOW}📝 Optional: copy nushell/autoload/local.nu.example to $NU_CONFIG_DIR/autoload/local.nu for machine-only variables${NC}"
@@ -133,7 +153,32 @@ fi
 echo -e "\n${GREEN}🐳 Setting up Colima template...${NC}"
 create_symlink "$DOTFILES_DIR/colima/default.yaml" "$HOME/.colima/_templates/default.yaml"
 
-for tool in nu starship atuin zoxide direnv fzf delta lazygit colima; do
+# lazysql: o config real fica fora do repo (o lazysql grava conexões nele); senhas no Keychain via lazysql-kc
+echo -e "\n${GREEN}🗄️  Setting up lazysql...${NC}"
+create_symlink "$DOTFILES_DIR/bin/lazysql-kc" "$HOME/.local/bin/lazysql-kc"
+LAZYSQL_CFG="$HOME/Library/Application Support/lazysql/config.toml"
+if [ ! -e "$LAZYSQL_CFG" ]; then
+    mkdir -p "$(dirname "$LAZYSQL_CFG")"
+    cp "$DOTFILES_DIR/lazysql/config.toml.example" "$LAZYSQL_CFG"
+    echo -e "${YELLOW}📝 Edit $LAZYSQL_CFG and store passwords with: lazysql-kc set NOME${NC}"
+fi
+
+# GitHub CLI: gh-dash (config real fora do repo: tem a org do trabalho) e aliases
+echo -e "\n${GREEN}🐙 Setting up gh and gh-dash...${NC}"
+if [ ! -e "$HOME/.config/gh-dash/config.yml" ]; then
+    mkdir -p "$HOME/.config/gh-dash"
+    cp "$DOTFILES_DIR/gh-dash/config.yml.example" "$HOME/.config/gh-dash/config.yml"
+    echo -e "${YELLOW}📝 Edit ~/.config/gh-dash/config.yml (SUA_ORG and repoPaths)${NC}"
+fi
+if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    gh extension list | grep -q 'dlvhdr/gh-dash' || gh extension install dlvhdr/gh-dash
+    gh alias set co 'pr checkout' --clobber >/dev/null
+fi
+
+# Hook de pre-commit deste repo (gitleaks + URL com senha embutida)
+git -C "$DOTFILES_DIR" config core.hooksPath .githooks
+
+for tool in nu starship atuin zoxide direnv fzf delta lazygit colima carapace gh lazysql lazydocker gitleaks; do
     command -v "$tool" >/dev/null 2>&1 || echo -e "${YELLOW}⚠️  $tool not found — brew install $tool${NC}"
 done
 

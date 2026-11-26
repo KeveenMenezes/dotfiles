@@ -68,6 +68,13 @@ echo -e "\n${RED}🐑 Removing herdr configuration...${NC}"
 HERDR_CONFIG_DIR="$HOME/.config/herdr"
 remove_symlink "$HERDR_CONFIG_DIR/config.toml" "herdr config"
 remove_symlink "$HERDR_CONFIG_DIR/scripts" "herdr scripts"
+command -v herdr >/dev/null 2>&1 && herdr plugin unlink keveen.workflow >/dev/null 2>&1 || true
+
+# Remove Claude Code skills linked from this repo (a skill oficial do herdr não é link e fica)
+echo -e "\n${RED}🤖 Removing Claude Code skills...${NC}"
+for skill in "$(dirname "$0")"/claude/skills/*/; do
+    remove_symlink "$HOME/.claude/skills/$(basename "$skill")" "Claude skill $(basename "$skill")"
+done
 
 # Remove Nushell configuration
 echo -e "\n${RED}🐚 Removing Nushell configuration...${NC}"
@@ -83,6 +90,7 @@ remove_symlink "$HOME/.config/starship.toml" "Starship"
 remove_symlink "$HOME/.config/atuin/config.toml" "atuin"
 remove_symlink "$HOME/Library/Application Support/lazygit/config.yml" "lazygit"
 remove_symlink "$HOME/.local/bin/tema" "tema command"
+remove_symlink "$HOME/.local/bin/lazysql-kc" "lazysql-kc command"
 remove_symlink "$HOME/.config/atuin/themes/prom-wiki.toml" "atuin prom-wiki theme"
 remove_symlink "$HOME/.config/atuin/themes/prom-lilas.toml" "atuin prom-lilas theme"
 remove_symlink "$HOME/.config/bat/themes/prom-wiki.tmTheme" "bat prom-wiki theme"

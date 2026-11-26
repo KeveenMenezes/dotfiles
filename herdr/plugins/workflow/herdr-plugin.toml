@@ -1,0 +1,49 @@
+# Plugin local do herdr (linkado pelo install.sh: herdr plugin link <este diretório>)
+#   - Ctrl+clique num link de PR/issue do GitHub: abre o preview em popup (gh) em vez do navegador
+#   - prefix+ctrl+r: PR do branch da pane atual, no mesmo popup
+#   - worktree.created: copia os arquivos locais ignorados (.env, .envrc, *.local…) da worktree
+#     principal para a nova e roda direnv allow
+#   - startup: mantém ~/.claude/skills/herdr/SKILL.md igual ao `herdr --skill` da versão instalada
+id = "keveen.workflow"
+name = "Workflow"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "GitHub link preview, worktree bootstrap e sync da skill do herdr"
+platforms = ["macos"]
+
+[[startup]]
+command = ["bash", "sync-skill.sh"]
+
+[[events]]
+on = "worktree.created"
+command = ["bash", "worktree-bootstrap.sh"]
+
+[[actions]]
+id = "github-preview"
+title = "Preview do link do GitHub"
+command = ["bash", "github-open.sh"]
+
+[[actions]]
+id = "current-pr"
+title = "PR do branch atual"
+contexts = ["workspace"]
+command = ["bash", "github-open.sh", "--current"]
+
+[[actions]]
+id = "sync-skill"
+title = "Atualizar a skill do herdr no Claude Code"
+command = ["bash", "sync-skill.sh"]
+
+[[panes]]
+id = "github"
+title = "GitHub"
+placement = "popup"
+width = "92%"
+height = "90%"
+command = ["bash", "github-preview.sh"]
+
+[[link_handlers]]
+id = "github-pr-issue"
+title = "Preview de PR/issue do GitHub"
+pattern = "^https://github\\.com/[^/]+/[^/]+/(issues|pull)/[0-9]+(/.*)?([?#].*)?$"
+action = "github-preview"
