@@ -119,11 +119,12 @@ The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-c
 	- **Left hand, herdr:**
 		- outer column: task picker · quick capture · keyboard map
 		- top row: new tab · previous/next tab · split right · split down
-		- home row: move between panes ← ↓ ↑ → (h/j/k/l) · zoom
-		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
+		- panes on the same keys as the arrows of the number layer: ← → on the home row (`E`, `A`), ↓ ↑ below them (`J`, `K`)
+		- home row: lazydocker · lazysql · (pane ← →) · zoom
+		- bottom row: lazygit · gh dash · (pane ↓ ↑) · PR of current branch
 	- **Right thumbs:** next agent · previous agent · notified agent.
 	- **Right hand, AeroSpace** (sent as `ctrl+alt+⌘`): workspaces on the same keys as the digits of the number layer (code 1 … scratch 9, web 0) and the service/windows/resize/move/infra modes; outer column: floating shell · workspace picker · goto.
-- **Accents:** the sticky `Func` key, then one key for `ão` or `ões`. Other accents use the dead keys (`'`, `~`, `^` and `` ` ``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
+- **Func layer** (sticky): left home row `ão` (index) and `ões` (middle), volume −/+ and mute around them; bottom row previous · play/pause · next. F-keys on the right in numpad shape; Bluetooth on the left top row; brightness and screenshots on the thumbs. For `ão`/`ões`: the sticky `Func` key, then one key. Other accents use the dead keys (`'`, `~`, `^` and `` ` ``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
 - **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. Left home row in that layer: Snipe (slow, precise) · right click · Scroll (hold and roll the ball) · click · middle click. The base layer has no mouse keys: after a pause, nudge the ball first.
 - **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
 - **AeroSpace vs herdr:** AeroSpace gets `ctrl+alt+⌘` from the Fluxo layer; `alt+1..9` (number layer + sticky Alt) switches herdr workspaces.
