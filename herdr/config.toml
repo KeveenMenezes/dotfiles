@@ -91,6 +91,24 @@ description = "tarefas"
 width = "85%"
 height = "80%"
 
+# captura rápida: anota no TASK.md da tarefa da pane focada (ou no Inbox)
+[[keys.command]]
+key = "prefix+ctrl+n"
+type = "popup"
+command = "~/.local/bin/task capture && sleep 0.8"
+description = "captura"
+width = "70%"
+height = 6
+
+# mapa do teclado (Crosses), um layer por vez; ←/→ troca
+[[keys.command]]
+key = "prefix+ctrl+k"
+type = "popup"
+command = "~/.local/bin/keymap-view"
+description = "mapa do teclado"
+width = "95%"
+height = 24
+
 # plugin keveen.workflow (herdr/plugins/workflow): PR do branch da pane atual em popup.
 # Ctrl+clique em link de PR/issue do GitHub abre o mesmo popup.
 [[keys.command]]

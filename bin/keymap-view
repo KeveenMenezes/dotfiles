@@ -1,0 +1,133 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pyyaml"]
+# ///
+"""keymap-view — mapa do teclado (Crosses 3x6+3) no terminal, um layer por vez.
+
+Lê o YAML que o keymap-drawer gera no repositório do teclado (img/crosses.yaml).
+←/→ ou h/l troca de layer · 1–9 vai direto · q/esc sai.
+KEYMAP_YAML aponta para outro arquivo.
+"""
+import os
+import sys
+import termios
+import tty
+
+import yaml
+
+PATH = os.environ.get("KEYMAP_YAML", os.path.expanduser("~/Documents/projects/zmk-for-crosses/img/crosses.yaml"))
+FIRST = ["Fluxo", "Func", "NumSetas", "Pontuacao", "Base", "Mouse"]
+W = 12  # largura de cada tecla
+ACC, DIM, TXT, HOLD, BOLD, R = "\033[38;2;41;184;219m", "\033[38;2;80;80;80m", "\033[38;2;182;182;182m", "\033[38;2;165;121;195m", "\033[1m", "\033[0m"
+
+
+def key(k):
+    """(tap, hold, tipo) de uma entrada do YAML do keymap-drawer."""
+    if k is None:
+        return "", "", None
+    if isinstance(k, (str, int, float)):
+        return str(k), "", None
+    t, h = k.get("t", ""), k.get("h", "")
+    return ("" if t is None else str(t)), ("" if h is None else str(h)), k.get("type")
+
+
+def cell(k):
+    t, h, typ = key(k)
+    fit = lambda s: (s if len(s) <= W - 2 else s[: W - 3] + "…").center(W - 2)
+    if typ == "trans":
+        return f"{DIM}{fit('▽')}{R}", " " * (W - 2)
+    if typ == "held":
+        return f"{ACC}{BOLD}{fit('● segurado')}{R}", " " * (W - 2)
+    color = TXT if t else DIM
+    return f"{color}{fit(t)}{R}", f"{HOLD}{fit(h)}{R}"
+
+
+def row_lines(keys, joiner="│"):
+    cells = [cell(k) for k in keys]
+    top = joiner + joiner.join(c[0] for c in cells) + joiner
+    bot = joiner + joiner.join(c[1] for c in cells) + joiner
+    return top, bot
+
+
+def border(n, l, m, r):
+    return f"{DIM}{l}{m.join(['─' * (W - 2)] * n)}{r}{R}"
+
+
+def render(layers, names, i):
+    keys = layers[names[i]]
+    out = []
+    tabs = "  ".join(f"{ACC}{BOLD}[{n}]{R}" if j == i else f"{DIM}{j + 1} {n}{R}" for j, n in enumerate(names))
+    out += ["", "  " + tabs, ""]
+    gap = "    "
+    for r in range(3):
+        left, right = keys[r * 12 : r * 12 + 6], keys[r * 12 + 6 : r * 12 + 12]
+        b = border(6, "╭" if r == 0 else "├", "┬" if r == 0 else "┼", "╮" if r == 0 else "┤")
+        out.append("  " + b + gap + b)
+        lt, lb = row_lines(left)
+        rt, rb = row_lines(right)
+        out.append(f"  {DIM}{R}{lt}{gap}{rt}")
+        out.append(f"  {lb}{gap}{rb}")
+    b = border(6, "╰", "┴", "╯")
+    out.append("  " + b + gap + b)
+    thumbs = keys[36:42]
+    pad = " " * (3 * (W - 1))
+    tb = border(3, "╭", "┬", "╮")
+    out.append("  " + pad + tb + gap + tb)
+    lt, lb = row_lines(thumbs[:3])
+    rt, rb = row_lines(thumbs[3:])
+    out.append("  " + pad + lt + gap + rt)
+    out.append("  " + pad + lb + gap + rb)
+    eb = border(3, "╰", "┴", "╯")
+    out.append("  " + pad + eb + gap + eb)
+    out += ["", f"  {DIM}←/→ ou h/l troca de layer · 1–{min(len(names), 9)} vai direto · q sai · roxo = segurar{R}"]
+    return "\n".join(out)
+
+
+def readkey():
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = os.read(fd, 1)
+        if ch == b"\x1b":
+            seq = os.read(fd, 2)
+            return {b"[C": "right", b"[D": "left"}.get(seq, "esc")
+        return ch.decode(errors="ignore")
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+def main():
+    try:
+        data = yaml.safe_load(open(PATH))
+    except OSError:
+        sys.exit(f"keymap-view: não achei {PATH} (KEYMAP_YAML)")
+    layers = data["layers"]
+    names = [n for n in FIRST if n in layers] + [n for n in layers if n not in FIRST]
+    i = 0
+    if len(sys.argv) > 1 and sys.argv[1] in names:
+        i = names.index(sys.argv[1])
+    if not sys.stdin.isatty():  # modo não interativo: imprime o layer e sai
+        print(render(layers, names, i))
+        return
+    sys.stdout.write("\033[?25l")
+    try:
+        while True:
+            sys.stdout.write("\033[2J\033[H" + render(layers, names, i))
+            sys.stdout.flush()
+            k = readkey()
+            if k in ("q", "esc", "\x03"):
+                break
+            if k in ("right", "l"):
+                i = (i + 1) % len(names)
+            elif k in ("left", "h"):
+                i = (i - 1) % len(names)
+            elif k.isdigit() and 1 <= int(k) <= len(names):
+                i = int(k) - 1
+    finally:
+        sys.stdout.write("\033[?25h\033[2J\033[H")
+
+
+if __name__ == "__main__":
+    main()

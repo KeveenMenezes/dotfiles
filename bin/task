@@ -12,6 +12,7 @@
 #   task review <owner/repo> <pr> [--review] abre a tarefa do PR (cria se preciso); --review abre o Claude revisando
 #   task new-from-issue <owner/repo> <issue> tarefa nova a partir de uma issue
 #   task pick                                seletor (tarefas, projetos, zoxide) para popup do herdr
+#   task capture [texto]                     anota no log da tarefa atual (ou no Inbox); sem texto, pergunta
 set -euo pipefail
 export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
 
@@ -603,6 +604,32 @@ cmd_pick() {
     esac
 }
 
+# ── captura rápida ───────────────────────────────────────────────────────────
+cmd_capture() { # [texto…] — sem texto, pergunta (popup do herdr: prefix+ctrl+n)
+    local text="$*" dir=${HERDR_ACTIVE_PANE_CWD:-$PWD} id="" file ctx b stamp
+    if [[ -z $text ]]; then
+        read -rep "captura › " text
+    fi
+    [[ -n ${text// /} ]] || exit 0
+    stamp=$(date '+%F %H:%M')
+    if [[ $dir == "$TASK_ROOT"/* ]]; then
+        id=${dir#"$TASK_ROOT"/}
+        id=${id%%/*}
+    fi
+    if [[ -n $id && -f $(task_dir "$id")/TASK.md ]]; then
+        file="$(task_dir "$id")/TASK.md"
+        b=$(git -C "$dir" branch --show-current 2>/dev/null || true)
+        printf -- '- %s %s%s\n' "$stamp" "${b:+[$b] }" "$text" >>"$file"
+        info "anotado no log de $(task_label "$id")"
+        return
+    fi
+    if [[ -n ${TASK_INBOX:-} && $dir == "$(dirname "$TASK_INBOX")"* ]]; then file=$TASK_INBOX; else file=${TASK_PERSONAL_INBOX:-$HOME/Inbox.md}; fi
+    [[ -f $file ]] || printf '# Inbox\n\n' >"$file"
+    ctx=${dir/#$HOME/\~}
+    printf -- '- [ ] %s %s  _(%s)_\n' "$stamp" "$text" "$ctx" >>"$file"
+    info "anotado em ${file/#$HOME/\~}"
+}
+
 case ${1:-help} in
 list | ls) shift; cmd_list "$@" ;;
 open) shift; cmd_open "$@" ;;
@@ -614,6 +641,7 @@ path) shift; cmd_path "$@" ;;
 review) shift; cmd_review "$@" ;;
 new-from-issue) shift; cmd_new_from_issue "$@" ;;
 pick) shift; cmd_pick "$@" ;;
+capture) shift; cmd_capture "$@" ;;
 __pick-preview) shift; pick_preview "$@" ;;
 help | -h | --help) awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$SELF" ;;
 *) die "comando desconhecido: $1 (task help)" ;;
