@@ -119,7 +119,7 @@ gh pr diff "$number" --repo "$repo" --color=never >"$PRV_DIR/pr.diff" 2>/dev/nul
 
 # ── cabeçalho ────────────────────────────────────────────────────────────────
 j() { jq -r "$1" "$PRV_DIR/pr.json"; }
-read -r ok run bad < <(jq -r "$checks_jq"' | [map(select(.s=="ok"))|length, map(select(.s=="run"))|length, map(select(.s=="bad"))|length] | @tsv' "$PRV_DIR/pr.json")
+read -r ok run bad < <(jq -r "$checks_jq"' | [(map(select(.s=="ok"))|length), (map(select(.s=="run"))|length), (map(select(.s=="bad"))|length)] | @tsv' "$PRV_DIR/pr.json")
 state=$(j .state)
 [[ $(j .isDraft) == true ]] && state="DRAFT"
 case $state in OPEN) sc=$C_OK ;; MERGED) sc=$'\033[38;2;165;121;195m' ;; DRAFT) sc=$C_DIM ;; *) sc=$C_BAD ;; esac

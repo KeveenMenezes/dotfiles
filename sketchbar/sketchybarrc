@@ -70,6 +70,7 @@ source "$ITEM_DIR/front_app.sh"
 
 # Right
 source "$ITEM_DIR/calendar.sh"
+source "$ITEM_DIR/herdr.sh"
 source "$ITEM_DIR/brew.sh"
 source "$ITEM_DIR/github.sh"
 source "$ITEM_DIR/battery.sh"
@@ -78,10 +79,9 @@ source "$ITEM_DIR/spotify.sh"
 source "$ITEM_DIR/cpu.sh"
 
 # Start aerospace event monitoring (kills existing instance first)
-pkill -f "aerospace_events.sh" 2>/dev/null
-"$PLUGIN_DIR/aerospace_events.sh" &
 
 # Forcing all item scripts to run (never do this outside of sketchybarrc)
+# workspaces do AeroSpace atualizam por evento (items/spaces.sh); o antigo loop de 0,3 s (aerospace_events.sh) saiu
 sketchybar --update
 
 ## Keep bar pinned to the top to avoid background artifact lines

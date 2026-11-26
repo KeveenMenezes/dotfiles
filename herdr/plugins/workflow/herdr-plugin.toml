@@ -3,6 +3,7 @@
 #   - prefix+ctrl+r: PR do branch da pane atual, no mesmo popup
 #   - worktree.created: copia os arquivos locais ignorados (.env, .envrc, *.local…) da worktree
 #     principal para a nova e roda direnv allow
+#   - eventos de agente/workspace: atualizam a sketchybar
 #   - startup: mantém ~/.claude/skills/herdr/SKILL.md igual ao `herdr --skill` da versão instalada
 id = "keveen.workflow"
 name = "Workflow"
@@ -17,6 +18,13 @@ command = ["bash", "sync-skill.sh"]
 [[events]]
 on = "worktree.created"
 command = ["bash", "worktree-bootstrap.sh"]
+
+# sketchybar: tarefa atual atualizada ao trocar de workspace (sketchbar/items/herdr.sh).
+# pane.agent_status_changed não chega a hooks de plugin (é escopado por pane no socket);
+# o estado dos agentes vem do update_freq do item.
+[[events]]
+on = "workspace.focused"
+command = ["bash", "sketchybar-update.sh"]
 
 [[actions]]
 id = "github-preview"
