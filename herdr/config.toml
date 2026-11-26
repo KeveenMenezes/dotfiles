@@ -82,6 +82,15 @@ description = "gh dash (PRs)"
 width = "95%"
 height = "90%"
 
+# tarefas (bin/task): tarefas ativas, projetos e pastas do zoxide; ctrl-n cria, ctrl-x encerra
+[[keys.command]]
+key = "prefix+ctrl+t"
+type = "popup"
+command = "~/.local/bin/task pick"
+description = "tarefas"
+width = "85%"
+height = "80%"
+
 # plugin keveen.workflow (herdr/plugins/workflow): PR do branch da pane atual em popup.
 # Ctrl+clique em link de PR/issue do GitHub abre o mesmo popup.
 [[keys.command]]

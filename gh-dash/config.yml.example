@@ -36,3 +36,21 @@ defaults:
 # Onde fica o clone local de cada repo (usado no checkout pelo painel)
 repoPaths:
   SUA_ORG/*: ~/code/SUA_ORG/*
+
+# Atalhos que ligam o gh-dash às tarefas (bin/task) e ao painel de PR (bin/pr-view).
+# Só passam repo e número; o resto (branch, título) é lido via gh, sem interpolar texto livre no shell.
+keybindings:
+  prs:
+    - key: T
+      name: abrir tarefa
+      command: ~/.local/bin/task review {{.RepoName}} {{.PrNumber}}
+    - key: I
+      name: revisar com Claude
+      command: ~/.local/bin/task review {{.RepoName}} {{.PrNumber}} --review
+    - key: V
+      name: painel do PR
+      command: ~/.local/bin/pr-view {{.RepoName}} {{.PrNumber}}
+  issues:
+    - key: N
+      name: nova tarefa
+      command: ~/.local/bin/task new-from-issue {{.RepoName}} {{.IssueNumber}}

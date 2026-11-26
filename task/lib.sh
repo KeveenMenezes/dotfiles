@@ -49,6 +49,21 @@ agent_start() { # pane name [args do agente...]
     fi
 }
 
+# ── GitHub ───────────────────────────────────────────────────────────────────
+gh_use_account_for() { # owner/repo: se a conta ativa do gh não enxerga o repo, exporta GH_TOKEN de outra logada
+    local repo=$1 login token
+    [[ -n ${GH_TOKEN:-} ]] && return 0
+    gh api "repos/$repo" --silent >/dev/null 2>&1 && return 0
+    while read -r login; do
+        token=$(gh auth token --user "$login" 2>/dev/null) || continue
+        if GH_TOKEN=$token gh api "repos/$repo" --silent >/dev/null 2>&1; then
+            export GH_TOKEN=$token
+            return 0
+        fi
+    done < <(gh auth status --json hosts --jq '.hosts["github.com"][] | select(.active | not) | .login' 2>/dev/null)
+    return 0
+}
+
 # ── git ──────────────────────────────────────────────────────────────────────
 git_main_of() { # caminho de uma worktree -> caminho do repositório principal
     git -C "$1" worktree list --porcelain 2>/dev/null | awk '/^worktree /{print substr($0, 10); exit}'

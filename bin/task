@@ -9,6 +9,9 @@
 #   task close <id>                          confere (limpo + mergeado), confirma e remove as worktrees
 #   task migrate [--apply [arquivo]] [--include-busy] [--drop-links]
 #   task path <id>                           caminho da pasta da tarefa
+#   task review <owner/repo> <pr> [--review] abre a tarefa do PR (cria se preciso); --review abre o Claude revisando
+#   task new-from-issue <owner/repo> <issue> tarefa nova a partir de uma issue
+#   task pick                                seletor (tarefas, projetos, zoxide) para popup do herdr
 set -euo pipefail
 export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
 
@@ -132,6 +135,14 @@ add_worktree() { # id ticket slug repo base variant branch_existente
     [[ -n $base ]] || base=$(git_default_base "$main")
     if [[ -z $branch ]]; then
         branch="$TASK_BRANCH_PREFIX/${ticket:+$ticket/}$slug${variant:+-$variant}"
+    fi
+    local existing
+    existing=$(git -C "$main" worktree list --porcelain | awk -v b="refs/heads/$branch" '/^worktree /{w=substr($0, 10)} $0 == "branch " b {print w; exit}')
+    if [[ -n $existing ]]; then
+        mkdir -p "$(task_dir "$id")"
+        ln -s "$existing" "$path"
+        info "$repo: $branch já está aberto em ${existing/#$HOME/\~}; a tarefa ganha um link para lá"
+        return 0
     fi
     info "$repo: $branch (base $base)"
     git -C "$main" fetch -q origin "$base" 2>/dev/null || warn "fetch de origin/$base falhou; usando o que há localmente"
@@ -428,6 +439,170 @@ cmd_migrate() {
 
 cmd_path() { require_task "${1:?uso: task path <id>}"; task_dir "$1"; }
 
+# ── PR / issue → tarefa ──────────────────────────────────────────────────────
+find_task_by_branch() { # branch -> id da tarefa que já tem uma worktree nesse branch
+    local md d e
+    for md in "$TASK_ROOT"/*/TASK.md; do
+        [[ -f $md ]] || continue
+        d=$(dirname "$md")
+        for e in "$d"/*; do
+            [[ -e $e/.git ]] || continue
+            [[ $(git -C "$e" branch --show-current 2>/dev/null) == "$1" ]] && { basename "$d"; return; }
+        done
+    done
+}
+
+cmd_review() { # owner/repo número [--review]
+    local repo=${1:?uso: task review <owner/repo> <pr> [--review]} number=${2:?uso: task review <owner/repo> <pr>} review=0
+    [[ ${3:-} == --review ]] && review=1
+    gh_use_account_for "$repo"
+    local json branch title rname ticket id slug d e have="" variant="" ws tab pane
+    json=$(gh pr view "$number" --repo "$repo" --json headRefName,title) || die "não consegui ler o PR $repo#$number"
+    branch=$(jq -r .headRefName <<<"$json")
+    title=$(jq -r .title <<<"$json")
+    rname=${repo#*/}
+    ticket=$(ticket_of "$branch")
+    id=$(find_task_by_branch "$branch")
+    if [[ -z $id && -n $ticket ]]; then
+        id=$(find "$TASK_ROOT" -mindepth 1 -maxdepth 1 -type d -name "$ticket-*" -exec basename {} \; | head -1)
+    fi
+    if [[ -z $id ]]; then
+        slug=$(sed -E "s#^[^/]*/##; s#^${ticket:-NOTICKET}[/_-]?##" <<<"$branch")
+        id="${ticket:+$ticket-}$(slugify "$slug" | cut -c1-30)"
+        write_task_files "$id" "$ticket" "$title"
+        info "tarefa nova: $id"
+    fi
+    d=$(task_dir "$id")
+    for e in "$d"/*; do
+        [[ -e $e/.git && $(git -C "$e" branch --show-current 2>/dev/null) == "$branch" ]] && have=$(basename "$e")
+    done
+    if [[ -z $have ]]; then
+        [[ -d $TASK_REPOS_DIR/$rname/.git ]] || die "clone principal não encontrado: $TASK_REPOS_DIR/$rname"
+        [[ -e $d/$rname ]] && variant="pr$number"
+        add_worktree "$id" "$ticket" "" "$rname" "" "$variant" "$branch"
+        have=$rname${variant:+-$variant}
+        refresh_repos_block "$id"
+        ws=$(ws_find "$(task_label "$id")")
+        [[ -n $ws ]] && repo_tab "$ws" "$id" "$have"
+    fi
+    printf -- '- %s PR #%s aberto para %s (%s)\n' "$(date '+%F %H:%M')" "$number" "$( ((review)) && echo revisão || echo trabalho)" "$have" >>"$d/TASK.md"
+    if ((review)); then
+        cmd_open "$id" --no-agent
+        ws=$(ws_find "$(task_label "$id")")
+        read -r tab pane < <(tab_create "$ws" "$d/$have" "review #$number")
+        hj tab focus "$tab" >/dev/null || true
+        agent_start "$pane" "rv-$number" "/code-review $number" || warn "o Claude abriu na aba review #$number e espera você"
+    else
+        cmd_open "$id"
+    fi
+}
+
+cmd_new_from_issue() { # owner/repo número
+    local repo=${1:?uso: task new-from-issue <owner/repo> <issue>} number=${2:?uso: task new-from-issue <owner/repo> <issue>} title rname repos=()
+    gh_use_account_for "$repo"
+    title=$(gh issue view "$number" --repo "$repo" --json title -q .title) || die "não consegui ler a issue $repo#$number"
+    rname=${repo#*/}
+    if [[ -d $TASK_REPOS_DIR/$rname/.git ]]; then
+        repos=(--repo "$rname")
+    else
+        while read -r r; do [[ -n $r ]] && repos+=(--repo "$r"); done < <(pick_repos "repositórios da issue #$number")
+    fi
+    ((${#repos[@]})) || die "nenhum repositório escolhido"
+    cmd_new "$number" "$(slugify "$title" | cut -c1-40)" --title "$title" "${repos[@]}"
+}
+
+# ── seletor (popup) ──────────────────────────────────────────────────────────
+primary_repos() { local m; for m in "$TASK_REPOS_DIR"/*/; do [[ -d $m/.git ]] && basename "$m"; done; }
+
+pick_repos() { # prompt -> nomes escolhidos (multi)
+    primary_repos | fzf -m --prompt "$1 (tab marca) › " --height 60% --layout=reverse
+}
+
+cmd_new_wizard() {
+    local ticket title repos=()
+    read -rp "ticket (vazio se não houver): " ticket
+    read -rp "título: " title
+    [[ -n $title ]] || die "título vazio"
+    while read -r r; do [[ -n $r ]] && repos+=(--repo "$r"); done < <(pick_repos "repositórios")
+    ((${#repos[@]})) || die "nenhum repositório escolhido"
+    cmd_new "${ticket:--}" "$title" --title "$title" "${repos[@]}"
+}
+
+open_dir_workspace() { # dir: foca a workspace com o nome da pasta ou cria uma
+    local dir=$1 label ws
+    label=$(basename "$dir")
+    ws=$(ws_find "$label")
+    if [[ -z $ws ]]; then
+        ws=$(hj workspace create --cwd "$dir" --label "$label" --no-focus | jq -r '.result.workspace.workspace_id')
+    fi
+    hj workspace focus "$ws" >/dev/null
+}
+
+pick_lines() {
+    local C=$'\033[38;2;41;184;219m' D=$'\033[38;2;107;107;107m' Y=$'\033[38;2;255;192;102m' R=$'\033[0m' seen="" p
+    cmd_list --json | jq -r --arg C "$C" --arg D "$D" --arg Y "$Y" --arg R "$R" '.[] |
+        ["task", .id, (if .workspace then $C + "●" else $D + "○" end) + $R + " " + .label +
+         (if .agents and .agents != "unknown" then " " + (if .agents == "blocked" then $Y else $D end) + "[" + .agents + "]" + $R else "" end) +
+         "  " + $D + .title + $R] | @tsv'
+    printf 'new\t-\t%s+ nova tarefa%s\n' "$C" "$R"
+    local roots=("$TASK_REPOS_DIR" "${TASK_PROJECT_DIRS[@]}") root
+    for root in "${roots[@]}"; do for p in "$root"/*/; do
+        p=${p%/}
+        [[ -d $p/.git ]] || continue
+        seen+="$p"$'\n'
+        printf 'dir\t%s\t%s◆%s %s  %s%s%s\n' "$p" "$C" "$R" "$(basename "$p")" "$D" "${p/#$HOME/\~}" "$R"
+    done; done
+    command -v zoxide >/dev/null && zoxide query -l 2>/dev/null | head -40 | while read -r p; do
+        [[ $p == "$TASK_ROOT"* || $p == "$HOME" ]] && continue
+        grep -qxF "$p" <<<"$seen" && continue
+        printf 'dir\t%s\t%s·%s %s\n' "$p" "$D" "$R" "${p/#$HOME/\~}"
+    done
+}
+
+pick_preview() { # kind key
+    case $1 in
+    task)
+        local d
+        d=$(task_dir "$2")
+        awk 'NR == 1 && $0 == "---" { fm = 1; next } fm && $0 == "---" { fm = 0; next } !fm' "$d/TASK.md" |
+            bat -l md --style=plain --color=always --paging=never 2>/dev/null | sed -n '1,30p'
+        printf '\n'
+        for e in "$d"/*; do
+            [[ -e $e/.git ]] || continue
+            printf '\033[38;2;41;184;219m%s\033[0m %s  %s\n' "$(basename "$e")" "$(git -C "$e" branch --show-current)" \
+                "$(git -C "$e" status --porcelain | wc -l | tr -d ' ') pendentes"
+        done
+        ;;
+    new) echo "Cria uma tarefa: ticket, título e repositórios (worktree + branch $TASK_BRANCH_PREFIX/<ticket>/<slug>)." ;;
+    dir)
+        if [[ -d $2/.git || -f $2/.git ]]; then
+            git -C "$2" log --oneline --color=always -8 2>/dev/null
+            printf '\n'
+            git -C "$2" -c color.status=always status -sb 2>/dev/null | head -15
+        else
+            eza -1 --icons --color=always "$2" 2>/dev/null | head -30 || ls "$2"
+        fi
+        ;;
+    esac
+}
+
+cmd_pick() {
+    local sel kind key
+    sel=$(pick_lines | fzf --ansi --delimiter=$'\t' --with-nth=3 --layout=reverse --no-sort --cycle \
+        --prompt '  ' --pointer '▌' --gutter ' ' --header 'enter abrir · ctrl-n nova tarefa · ctrl-x encerrar tarefa' \
+        --color 'bg+:#1d1d1d,hl:#29b8db,hl+:#29b8db,pointer:#29b8db,prompt:#29b8db,header:#6b6b6b,border:#333333' \
+        --preview "$SELF __pick-preview {1} {2}" --preview-window 'right,55%,border-left' \
+        --expect ctrl-n,ctrl-x) || exit 0
+    key=$(sed -n 1p <<<"$sel")
+    IFS=$'\t' read -r kind sel _ <<<"$(sed -n 2p <<<"$sel")"
+    case "$key:$kind" in
+    ctrl-n:* | *:new) cmd_new_wizard ;;
+    ctrl-x:task) cmd_close "$sel"; read -rp "enter para fechar" _ ;;
+    *:task) cmd_open "$sel" ;;
+    *:dir) open_dir_workspace "$sel" ;;
+    esac
+}
+
 case ${1:-help} in
 list | ls) shift; cmd_list "$@" ;;
 open) shift; cmd_open "$@" ;;
@@ -436,6 +611,10 @@ add-repo) shift; cmd_add_repo "$@" ;;
 close) shift; cmd_close "$@" ;;
 migrate) shift; cmd_migrate "$@" ;;
 path) shift; cmd_path "$@" ;;
-help | -h | --help) sed -n '2,13p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+review) shift; cmd_review "$@" ;;
+new-from-issue) shift; cmd_new_from_issue "$@" ;;
+pick) shift; cmd_pick "$@" ;;
+__pick-preview) shift; pick_preview "$@" ;;
+help | -h | --help) awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$SELF" ;;
 *) die "comando desconhecido: $1 (task help)" ;;
 esac

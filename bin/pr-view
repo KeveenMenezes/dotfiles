@@ -1,0 +1,163 @@
+#!/opt/homebrew/bin/bash
+# pr-view — painel de um PR no terminal (fzf + delta), pensado para popup do herdr.
+#
+#   pr-view <owner/repo> <número>     PR específico
+#   pr-view <url-do-PR-ou-issue>       link do GitHub (issues abrem só a visão de issue)
+#   pr-view --current [dir]            PR do branch do diretório
+#
+# Lista: Descrição, Checks, Comentários, cada arquivo (diff no preview) e ações.
+# Teclas: enter abre/executa · ctrl-o navegador · ctrl-t tarefa · ctrl-r revisar com Claude · esc sai
+set -uo pipefail
+export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+SELF=$(readlink -f "${BASH_SOURCE[0]}")
+DOT=$(cd "$(dirname "$SELF")/.." && pwd)
+# shellcheck source=../task/lib.sh
+source "$DOT/task/lib.sh"
+
+C_ACC=$'\033[38;2;41;184;219m' C_DIM=$'\033[38;2;107;107;107m' C_OK=$'\033[38;2;152;195;121m'
+C_BAD=$'\033[38;2;244;71;71m' C_WARN=$'\033[38;2;255;192;102m' C_TXT=$'\033[38;2;182;182;182m' R=$'\033[0m' B=$'\033[1m'
+
+pause() { printf '\n%s[enter] fechar%s' "$C_DIM" "$R"; read -r _ || true; }
+
+# ── subcomandos chamados pelo fzf (dados em $PRV_DIR) ────────────────────────
+checks_jq='[.statusCheckRollup[]? | {
+    name: (.name // .context // "?"),
+    s: ( if .__typename == "StatusContext" then
+           (if .state == "SUCCESS" then "ok" elif (.state == "PENDING" or .state == "EXPECTED") then "run" else "bad" end)
+         elif (.status // "") != "COMPLETED" then "run"
+         elif ((.conclusion // "") | IN("SUCCESS", "NEUTRAL", "SKIPPED")) then "ok"
+         else "bad" end ),
+    url: (.detailsUrl // .targetUrl // "") }]'
+
+preview() { # kind key
+    local kind=$1 key=$2 w=${FZF_PREVIEW_COLUMNS:-100}
+    case $kind in
+    sec)
+        case $key in
+        desc) jq -r '.body // "" | if . == "" then "(sem descrição)" else . end' "$PRV_DIR/pr.json" |
+            bat -l md --style=plain --color=always --paging=never --terminal-width "$w" 2>/dev/null || jq -r .body "$PRV_DIR/pr.json" ;;
+        checks) jq -r "$checks_jq"' | sort_by(.s) | .[] | (if .s == "ok" then "\u001b[38;2;152;195;121m✓" elif .s == "run" then "\u001b[38;2;255;192;102m●" else "\u001b[38;2;244;71;71m✗" end) + "\u001b[0m " + .name' "$PRV_DIR/pr.json" ;;
+        comments) jq -r '
+            ([.reviews[]? | {t: .submittedAt, who: .author.login, what: ("review " + .state), body: .body}] +
+             [.comments[]? | {t: .createdAt, who: .author.login, what: "comentário", body: .body}])
+            | sort_by(.t) | .[] | "\u001b[38;2;41;184;219m\(.who)\u001b[0m \u001b[38;2;107;107;107m\(.what) · \(.t[0:16] | sub("T"; " "))\u001b[0m\n\(.body // "" | gsub("<!--.*?-->"; ""; "s") | gsub("<details>.*?</details>"; "[detalhes recolhidos]"; "s") | gsub("<[^>]+>"; "") | gsub("\n{3,}"; "\n\n") | ltrimstr("\n") | if test("^\\s*$") then "(sem texto)" else . end)\n"' "$PRV_DIR/pr.json" ;;
+        esac
+        ;;
+    file) awk -v f="$key" '
+            /^diff --git / { show = (index($0, " b/" f) == length($0) - length(f) - 2) }
+            show' "$PRV_DIR/pr.diff" | delta --paging=never --width "$w" 2>/dev/null ;;
+    act)
+        case $key in
+        web) echo "Abre o PR no navegador." ;;
+        task) echo "Abre (ou cria) a tarefa do PR com a worktree do branch e foca a workspace no herdr." ;;
+        review) echo "Abre a tarefa e uma aba nova com o Claude rodando /code-review neste PR." ;;
+        esac
+        ;;
+    esac
+}
+
+open_item() { # kind key (enter)
+    case $1 in
+    sec) preview "$1" "$2" | less -R ;;
+    file) awk -v f="$2" '/^diff --git / { show = (index($0, " b/" f) == length($0) - length(f) - 2) } show' "$PRV_DIR/pr.diff" | delta --paging=always ;;
+    esac
+}
+
+act() { # web|task|review
+    local repo number
+    repo=$(cat "$PRV_DIR/repo")
+    number=$(jq -r .number "$PRV_DIR/pr.json")
+    case $1 in
+    web) open "$(jq -r .url "$PRV_DIR/pr.json")" ;;
+    task) task review "$repo" "$number" ;;
+    review) task review "$repo" "$number" --review ;;
+    esac
+}
+
+case ${1:-} in
+--preview) preview "$2" "$3"; exit 0 ;;
+--open) open_item "$2" "$3"; exit 0 ;;
+--act) act "$2"; exit 0 ;;
+esac
+
+# ── resolve o PR ─────────────────────────────────────────────────────────────
+repo="" number="" kind=pull
+if [[ ${1:-} == --current ]]; then
+    cd "${2:-$PWD}" 2>/dev/null || cd "$HOME"
+    repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
+    number=$(gh pr view --json number -q .number 2>/dev/null || true)
+    [[ -n $repo && -n $number ]] || { echo "nenhum PR aberto para o branch de $(pwd)"; pause; exit 0; }
+elif [[ ${1:-} =~ ^https://github\.com/([^/]+/[^/]+)/(issues|pull)/([0-9]+) ]]; then
+    repo=${BASH_REMATCH[1]} kind=${BASH_REMATCH[2]} number=${BASH_REMATCH[3]}
+elif [[ ${1:-} =~ ^[^/]+/[^/]+$ && ${2:-} =~ ^[0-9]+$ ]]; then
+    repo=$1 number=$2
+else
+    sed -n '2,10p' "$SELF" | sed 's/^# \{0,1\}//'
+    exit 1
+fi
+
+gh_use_account_for "$repo"
+
+if [[ $kind == issues ]]; then
+    clear
+    gh issue view "$number" --repo "$repo" --comments | less -R
+    exit 0
+fi
+
+PRV_DIR=$(mktemp -d)
+export PRV_DIR
+trap 'rm -rf "$PRV_DIR"' EXIT
+printf '%s' "$repo" >"$PRV_DIR/repo"
+printf '%scarregando %s#%s…%s\n' "$C_DIM" "$repo" "$number" "$R"
+fields=number,title,state,isDraft,author,headRefName,baseRefName,reviewDecision,mergeable,additions,deletions,changedFiles,labels,body,url,comments,reviews,statusCheckRollup,files
+if ! gh pr view "$number" --repo "$repo" --json "$fields" >"$PRV_DIR/pr.json" 2>"$PRV_DIR/err"; then
+    cat "$PRV_DIR/err"
+    pause
+    exit 1
+fi
+gh pr diff "$number" --repo "$repo" --color=never >"$PRV_DIR/pr.diff" 2>/dev/null &
+
+# ── cabeçalho ────────────────────────────────────────────────────────────────
+j() { jq -r "$1" "$PRV_DIR/pr.json"; }
+read -r ok run bad < <(jq -r "$checks_jq"' | [map(select(.s=="ok"))|length, map(select(.s=="run"))|length, map(select(.s=="bad"))|length] | @tsv' "$PRV_DIR/pr.json")
+state=$(j .state)
+[[ $(j .isDraft) == true ]] && state="DRAFT"
+case $state in OPEN) sc=$C_OK ;; MERGED) sc=$'\033[38;2;165;121;195m' ;; DRAFT) sc=$C_DIM ;; *) sc=$C_BAD ;; esac
+case $(j '.reviewDecision // ""') in
+APPROVED) rv="${C_OK}aprovado$R" ;;
+CHANGES_REQUESTED) rv="${C_BAD}mudanças pedidas$R" ;;
+REVIEW_REQUIRED) rv="${C_WARN}review pendente$R" ;;
+*) rv="${C_DIM}sem review$R" ;;
+esac
+ci="${C_OK}✓$ok$R ${C_WARN}●$run$R ${C_BAD}✗$bad$R"
+((ok + run + bad == 0)) && ci="${C_DIM}sem CI$R"
+labels=$(j '[.labels[]?.name] | join(", ")')
+header="${B}${C_ACC}$repo#$number$R ${B}$(j .title)$R
+${sc}$state$R ${C_DIM}·$R $(j .author.login) ${C_DIM}·$R $(j .headRefName) ${C_DIM}→$R $(j .baseRefName)
+review: $rv ${C_DIM}·$R CI $ci ${C_DIM}·$R ${C_OK}+$(j .additions)$R ${C_BAD}−$(j .deletions)$R ${C_DIM}·$R $(j .changedFiles) arquivos${labels:+ ${C_DIM}·$R $labels}"
+
+# ── lista ────────────────────────────────────────────────────────────────────
+ncom=$(j '(.comments | length) + ([.reviews[]? | select((.body // "") != "")] | length)')
+list() {
+    printf 'sec\tdesc\t%s  Descrição%s\n' "$C_TXT" "$R"
+    printf 'sec\tchecks\t%s  Checks%s  %s\n' "$C_TXT" "$R" "$ci"
+    printf 'sec\tcomments\t%s  Comentários e reviews%s  %s(%s)%s\n' "$C_TXT" "$R" "$C_DIM" "$ncom" "$R"
+    jq -r '.files[]? | [.path, (.additions|tostring), (.deletions|tostring)] | @tsv' "$PRV_DIR/pr.json" |
+        while IFS=$'\t' read -r p a d; do
+            printf 'file\t%s\t  %s%5s%s %s%5s%s  %s\n' "$p" "$C_OK" "+$a" "$R" "$C_BAD" "−$d" "$R" "$p"
+        done
+    printf 'act\ttask\t%s  ▶ Abrir a tarefa (worktree do branch)%s\n' "$C_ACC" "$R"
+    printf 'act\treview\t%s  ✦ Revisar com Claude%s\n' "$C_ACC" "$R"
+    printf 'act\tweb\t%s  ↗ Abrir no navegador%s\n' "$C_ACC" "$R"
+}
+
+wait # diff pronto antes do primeiro preview de arquivo
+list | fzf --ansi --delimiter=$'\t' --with-nth=3 --no-sort --layout=reverse --cycle \
+    --header "$header" --header-first --prompt '  ' --pointer '▌' --gutter ' ' \
+    --color 'bg+:#1d1d1d,hl:#29b8db,hl+:#29b8db,header:#b6b6b6,pointer:#29b8db,prompt:#29b8db,border:#333333' \
+    --preview "$SELF --preview {1} {2}" --preview-window 'right,62%,border-left,wrap' \
+    --bind "enter:transform:[[ {1} == act ]] && echo 'become($SELF --act {2})' || echo 'execute($SELF --open {1} {2})'" \
+    --bind "ctrl-o:execute-silent($SELF --act web)" \
+    --bind "ctrl-t:become($SELF --act task)" \
+    --bind "ctrl-r:become($SELF --act review)" \
+    --footer "enter abrir · ctrl-o navegador · ctrl-t tarefa · ctrl-r revisar com Claude · esc sair" || true
