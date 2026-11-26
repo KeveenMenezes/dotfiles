@@ -8,11 +8,6 @@ after-startup-command = [
     'exec-and-forget open -a "ChatGPT Atlas"',
 ]
 
-exec-on-workspace-change = ['/bin/bash', '-c',
-  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE && sketchybar --trigger windows_on_spaces',
-]
-
-on-focus-changed = ['exec-and-forget sketchybar --trigger window_focus']
 start-at-login = true
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -28,7 +23,7 @@ inner.vertical = 8
 
 outer.left = 8
 outer.right = 8
-outer.top = [{ monitor."built-in" = 40 }, 40]
+outer.top = 8
 outer.bottom = 8
 
 [key-mapping]

@@ -39,21 +39,6 @@ create_symlink() {
     ln -sf "$source" "$target"
 }
 
-# SketchyBar Configuration
-echo -e "\n${GREEN}🎨 Setting up SketchyBar configuration...${NC}"
-SKETCHYBAR_CONFIG_DIR="$HOME/.config/sketchybar"
-
-# Remove existing config directory if it exists and create symlink to entire directory
-if [ -d "$SKETCHYBAR_CONFIG_DIR" ]; then
-    echo -e "${YELLOW}📦 Backing up existing SketchyBar config${NC}"
-    mv "$SKETCHYBAR_CONFIG_DIR" "${SKETCHYBAR_CONFIG_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
-fi
-
-# Create parent directory and symlink
-mkdir -p "$(dirname "$SKETCHYBAR_CONFIG_DIR")"
-ln -sf "$DOTFILES_DIR/sketchbar" "$SKETCHYBAR_CONFIG_DIR"
-echo -e "${GREEN}🔗 Linked entire SketchyBar directory${NC}"
-
 # AeroSpace Configuration
 echo -e "\n${GREEN}✈️ Setting up AeroSpace configuration...${NC}"
 AEROSPACE_CONFIG_DIR="$HOME/.config/aerospace"
@@ -193,7 +178,7 @@ echo -e "\n${GREEN}📝 Setting up Neovim...${NC}"
 # Hook de pre-commit deste repo (gitleaks + URL com senha embutida)
 git -C "$DOTFILES_DIR" config core.hooksPath .githooks
 
-for tool in nu starship atuin zoxide direnv fzf delta lazygit colima carapace gh lazysql lazydocker gitleaks sketchybar uv; do
+for tool in nu starship atuin zoxide direnv fzf delta lazygit colima carapace gh lazysql lazydocker gitleaks uv; do
     command -v "$tool" >/dev/null 2>&1 || echo -e "${YELLOW}⚠️  $tool not found — brew install $tool${NC}"
 done
 

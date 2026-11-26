@@ -33,19 +33,6 @@ remove_symlink() {
     fi
 }
 
-# Remove SketchyBar configuration
-echo -e "\n${RED}🎨 Removing SketchyBar configuration...${NC}"
-SKETCHYBAR_CONFIG_DIR="$HOME/.config/sketchybar"
-if [ -L "$SKETCHYBAR_CONFIG_DIR" ]; then
-    rm "$SKETCHYBAR_CONFIG_DIR"
-    # Look for backup
-    backup=$(ls -td "${SKETCHYBAR_CONFIG_DIR}.backup."* 2>/dev/null | head -n1)
-    if [ -n "$backup" ]; then
-        echo -e "${GREEN}📦 Restoring SketchyBar backup${NC}"
-        mv "$backup" "$SKETCHYBAR_CONFIG_DIR"
-    fi
-fi
-
 # Remove AeroSpace configuration
 echo -e "\n${RED}✈️ Removing AeroSpace configuration...${NC}"
 remove_symlink "$HOME/.config/aerospace/aerospace.toml" "AeroSpace"

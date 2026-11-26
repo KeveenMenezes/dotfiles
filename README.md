@@ -5,15 +5,7 @@ This repository contains configuration files and scripts for customizing your de
 ## Structure
 
 - **aerospace/**
-	- `default-config.toml`: Configuration for the AeroSpace window manager, including workspace and focus change triggers, layout settings, and normalization options.
-
-- **sketchbar/**
-	- `sketchybarrc`: Main configuration script for SketchyBar, setting up appearance, colors, icons, helper processes, and plugins.
-	- `colors.sh`: Defines color palette variables for SketchyBar.
-	- `icons.sh`: Defines icon variables for use in SketchyBar.
-	- `items/`: Contains scripts for individual bar items (e.g., battery, CPU, Spotify, etc.).
-	- `plugins/`: Contains plugin scripts for extended bar functionality.
-	- `helper/`: Contains helper scripts and binaries for SketchyBar.
+	- `default-config.toml`: Configuration for the AeroSpace window manager, including layout settings, and normalization options.
 
 - **vs-code/**
 	- `keybindings.json`: Custom keybindings for Visual Studio Code.
@@ -41,8 +33,6 @@ This repository contains configuration files and scripts for customizing your de
 - **bin/keymap-view** — text map of the keyboard layers, read from the keymap-drawer YAML of the keyboard repo (`prefix ctrl+k`).
 
 - **nvim/** — LazyVim config (linked to `~/.config/nvim`). The dashboard images are third-party art and stay out of the repo (`nvim/.gitignore`).
-
-- **sketchbar/** — SketchyBar (top bar; the macOS menu bar auto-hides). AeroSpace workspaces read from its own bindings and updated by its events (no polling); `items/herdr.sh` adds the focused herdr workspace (task), agents by state (⚠ blocked · ✓ done · ◐ working; click focuses who needs you) and the Claude plan quota.
 
 - **bin/lazysql-kc** — opens lazysql with the `${env:NAME}` placeholders of its config filled from the macOS Keychain (service `lazysql`). `lazysql-kc set NAME` stores a secret, `lazysql-kc list` shows which are present.
 
@@ -122,16 +112,18 @@ AeroSpace owns `alt-*` (workspaces, focus, modes) and wins over the terminal, so
 
 The split keyboard ([zmk-for-crosses](https://github.com/KeveenMenezes/zmk-for-crosses), layout in `img/crosses.svg`) sends these shortcuts in one press from the home position:
 
-- **Herdr prefix:** the key above the left pinky sends plain `ctrl+a`. The left pinky outer home key also sends `ctrl+a` on tap and Shift+Alt on hold.
-- **Spotlight:** the inner top key under the left index sends `⌘+Space`.
+- **Herdr prefix:** the key above the left pinky (left of `Y`) sends `ctrl+a`; it is the only herdr key on the base layer.
+- **Mission Control:** the left pinky outer home key (left of `H`) sends `ctrl+↑`, like the Mac's F3 key.
+- **Copy / paste:** the inner column under the left index sends `⌘C` (top row) and `⌘V` (bottom row).
 - **Fluxo layer:** hold the left outer thumb (tapping it still gives sticky punctuation).
 	- **Left hand, herdr:**
-		- home row: zoom · notified agent · previous agent · next agent · workspace picker
 		- outer column: task picker · quick capture · keyboard map
-		- top row: new tab · previous/next tab · goto · floating shell
+		- top row: new tab · previous/next tab · split right · split down
+		- home row: move between panes ← ↓ ↑ → (h/j/k/l) · zoom
 		- bottom row: lazygit · lazydocker · gh dash · lazysql · PR of current branch
-	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0), plus the service/windows/resize/move/infra modes and the herdr splits on the outer column.
-- **Accents:** tap the sticky `Func` key, then one key for á é ê ã õ ç à, `ção` or `ões`. These use the dead keys of the macOS "Brazilian – Pro" input source.
+	- **Right thumbs:** next agent · previous agent · notified agent.
+	- **Right hand, AeroSpace:** `alt-N` on the same keys as the digits of the number layer (code 1 … scratch 9, web 0) and the service/windows/resize/move/infra modes; outer column: floating shell · workspace picker · goto.
+- **Accents:** the sticky `Func` key, then one key for `ão` or `ões`. Other accents use the dead keys (`' ~ ^ \``) of the punctuation layer with the macOS "Brazilian – Pro" input source. macOS must see the keyboard as ANSI (`/Library/Preferences/com.apple.keyboardtype`, value 40); as ISO it swaps `` ` ``/`~` for `§`/`±`.
 - **Trackball:** moving it turns on the Mouse layer for 450 ms after the last movement. Left home row in that layer: Snipe (slow, precise) · right click · Scroll (hold and roll the ball) · click · middle click. The base layer has no mouse keys: after a pause, nudge the ball first.
 - **Repeat key:** the base layer's top outer-right key repeats the last key (double letters, repeated shortcuts).
 - **AeroSpace keeps priority:** the keyboard only sends `alt-*` shortcuts that it already binds.
@@ -175,7 +167,6 @@ The sidebar shows, for each Claude agent: state, where it runs, what it is doing
 
 ## Usage
 
-- Copy the contents of `sketchbar/` to your `~/.config/sketchybar` directory to apply the bar configuration.
 - Use the `aerospace/default-config.toml` for AeroSpace window manager customization.
 - Import the VS Code settings and keybindings for a personalized editor experience.
 - Install herdr (`brew install herdr`) and link `ghostty/` and `herdr/` into `~/.config/` (done by `install.sh`).
