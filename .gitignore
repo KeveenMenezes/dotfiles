@@ -13,3 +13,6 @@ nushell/autoload/atuin.nu
 nushell/vendor/
 
 .DS_Store
+
+# python bytecode (bin/kb-ota)
+__pycache__/

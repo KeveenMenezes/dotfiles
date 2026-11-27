@@ -141,8 +141,11 @@ ZMK's reset behavior with `type = 0xA8`, the bootloader's `DFU_MAGIC_OTA_RESET`.
 2. `kb-ota package` builds `~/Downloads/firmware-crosses/ota/crosses_{left,right}-ota.zip`. These are Nordic
    legacy DFU packages: the image from `0x26000`, device type `0x0052`, SoftDevice `0xFFFE` and CRC16,
    made with the Python standard library only. `kb-ota verify <zip>` checks a package.
-3. Send the zip to the phone (AirDrop), press `Func` + `OTA` on the half to update, then in the
-   **nRF Connect** app connect to the DFU device → DFU → choose the zip.
+3. `kb-ota send right` (or `left`), then press `Func` + `OTA` on that half. The upload starts by itself
+   over the Mac's Bluetooth (`bin/kb-ota-ble.swift`, CoreBluetooth only, compiled once into
+   `~/.cache/kb-ota`), implementing the bootloader's Nordic legacy DFU: start → init packet → image in
+   20-byte packets with receipts every 10 → validate (CRC16) → activate. Without a Mac, the
+   **nRF Connect** phone app (DFU) also takes the zip.
 
 If a transfer fails, the half stays in the bootloader: try again, or use the cable
 (double-tap reset, copy the `.uf2`). The cable is needed once, to install a firmware that has the `OTA` key.

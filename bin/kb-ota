@@ -8,15 +8,19 @@ padrão do Python. O envio é feito pelo app nRF Connect (iPhone/Android), funç
   kb-ota package [left|right|ambos] [--uf2 ARQ] [--out PASTA]   gera crosses_<lado>-ota.zip
   kb-ota verify PACOTE.zip                                       confere manifesto, cabeçalho e CRC
   kb-ota info ARQ.uf2                                            mostra endereços e tamanho
+  kb-ota send left|right [--zip PACOTE] [--scan SEGUNDOS]         envia pelo Bluetooth do Mac (CoreBluetooth)
 
-Fluxo: Func + tecla OTA (canto superior externo do lado que vai atualizar) → o bootloader sobe
-em modo DFU por Bluetooth → nRF Connect: conectar no dispositivo DFU → DFU → escolher o .zip.
+Fluxo: `kb-ota send right` (ou left) → aperte Func + OTA (canto superior externo daquele lado) → o
+bootloader sobe em modo DFU por Bluetooth e o envio começa sozinho. Alternativa: app nRF Connect → DFU.
 
 Regras do bootloader (Adafruit_nRF52_Bootloader, src/dfu_init.c): device_type 0x0052,
 lista de SoftDevices com 0xFFFE ("qualquer"), extensão do init packet ≥ 2 bytes e, no fim,
 CRC16 (CCITT, init 0xFFFF — crc16_compute da Nordic) igual ao da imagem recebida.
 """
 import argparse
+import os
+import subprocess
+import tempfile
 import binascii
 import json
 import pathlib
@@ -155,6 +159,43 @@ def verify(pkg: pathlib.Path) -> dict:
     return {"size": len(image), "crc": crc16_nordic(image), "sds": sds, "dev_type": dev_type}
 
 
+SWIFT_SRC = pathlib.Path(os.path.realpath(__file__)).with_name("kb-ota-ble.swift")
+SWIFT_BIN = pathlib.Path.home() / ".cache" / "kb-ota" / "kb-ota-ble"
+
+
+def ble_helper() -> pathlib.Path:
+    """Compila o envio em Swift (CoreBluetooth) uma vez; recompila quando o fonte muda."""
+    if not SWIFT_SRC.exists():
+        die(f"não achei {SWIFT_SRC}")
+    if SWIFT_BIN.exists() and SWIFT_BIN.stat().st_mtime >= SWIFT_SRC.stat().st_mtime:
+        return SWIFT_BIN
+    SWIFT_BIN.parent.mkdir(parents=True, exist_ok=True)
+    print("compilando o envio Bluetooth (só na primeira vez)…", file=sys.stderr)
+    r = subprocess.run(["swiftc", "-O", "-o", str(SWIFT_BIN), str(SWIFT_SRC)], capture_output=True, text=True)
+    if r.returncode != 0:
+        die("falha ao compilar kb-ota-ble.swift:\n" + r.stderr[-2000:])
+    return SWIFT_BIN
+
+
+def send(side: str, pkg, scan: int):
+    pkg = pkg or DEFAULT_DIR / "ota" / f"crosses_{side}-ota.zip"
+    if not pkg.exists():
+        uf2 = DEFAULT_DIR / "firmware" / f"crosses_{side}-nice_nano_v2-zmk.uf2"
+        if not uf2.exists():
+            die(f"não achei {pkg} nem {uf2}")
+        build_package(uf2, pkg)
+    r = verify(pkg)
+    print(f"{pkg.name}: {r['size']} bytes, CRC16 {r['crc']:#06x}", file=sys.stderr)
+    helper = ble_helper()
+    with tempfile.TemporaryDirectory() as tmp, zipfile.ZipFile(pkg) as z:
+        man = json.loads(z.read("manifest.json"))["manifest"]["application"]
+        bin_path, dat_path = pathlib.Path(tmp) / "app.bin", pathlib.Path(tmp) / "app.dat"
+        bin_path.write_bytes(z.read(man["bin_file"]))
+        dat_path.write_bytes(z.read(man["dat_file"]))
+        rc = subprocess.run([str(helper), str(bin_path), str(dat_path), str(scan)]).returncode
+    sys.exit(rc)
+
+
 def main():
     ap = argparse.ArgumentParser(prog="kb-ota", description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -166,12 +207,18 @@ def main():
     v.add_argument("pkg", type=pathlib.Path)
     i = sub.add_parser("info")
     i.add_argument("uf2", type=pathlib.Path)
+    sd = sub.add_parser("send")
+    sd.add_argument("side", choices=["left", "right"])
+    sd.add_argument("--zip", type=pathlib.Path)
+    sd.add_argument("--scan", type=int, default=90, help="segundos procurando o teclado em modo OTA")
     a = ap.parse_args()
 
     # autoteste do CRC com o vetor padrão do CCITT-FALSE ("123456789" → 0x29B1)
     assert crc16_nordic(b"123456789") == 0x29B1 == binascii.crc_hqx(b"123456789", 0xFFFF)
 
-    if a.cmd == "info":
+    if a.cmd == "send":
+        send(a.side, a.zip, a.scan)
+    elif a.cmd == "info":
         start, image, family = uf2_to_bin(a.uf2)
         sp, reset = sanity_check(start, image, a.uf2.name)
         print(f"{a.uf2.name}: {start:#x}–{start + len(image):#x} ({len(image)} bytes), família {family:#x}, "
