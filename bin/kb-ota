@@ -8,7 +8,8 @@ padrão do Python. O envio é feito pelo app nRF Connect (iPhone/Android), funç
   kb-ota package [left|right|ambos] [--uf2 ARQ] [--out PASTA]   gera crosses_<lado>-ota.zip
   kb-ota verify PACOTE.zip                                       confere manifesto, cabeçalho e CRC
   kb-ota info ARQ.uf2                                            mostra endereços e tamanho
-  kb-ota send left|right [--zip PACOTE] [--scan SEGUNDOS]         envia pelo Bluetooth do Mac (CoreBluetooth)
+  kb-ota send left|right [--latest] [--zip PACOTE] [--scan SEG]   envia pelo Bluetooth do Mac (CoreBluetooth)
+  kb-ota fetch [--branch 36]                                     baixa o último build verde do CI
 
 Fluxo: `kb-ota send right` (ou left) → aperte Func + OTA (canto superior externo daquele lado) → o
 bootloader sobe em modo DFU por Bluetooth e o envio começa sozinho. Alternativa: app nRF Connect → DFU.
@@ -40,6 +41,7 @@ APP_VERSION = 0xFFFFFFFF
 SD_ANY = 0xFFFE
 
 DEFAULT_DIR = pathlib.Path.home() / "Downloads" / "firmware-crosses"
+REPO = os.environ.get("KB_OTA_REPO", "KeveenMenezes/zmk-for-crosses")
 
 
 def die(msg):
@@ -177,13 +179,48 @@ def ble_helper() -> pathlib.Path:
     return SWIFT_BIN
 
 
+def fetch(branch: str):
+    """Baixa o último build verde do workflow build.yml para DEFAULT_DIR (substitui o anterior)."""
+    import shutil
+    if not shutil.which("gh"):
+        die("gh não encontrado (brew install gh)")
+    q = subprocess.run(["gh", "run", "list", "--repo", REPO, "--branch", branch, "--workflow", "build.yml",
+                        "--status", "success", "--limit", "1", "--json", "databaseId,headSha,createdAt,displayTitle"],
+                       capture_output=True, text=True)
+    runs = json.loads(q.stdout or "[]") if q.returncode == 0 else []
+    if not runs:
+        die(f"nenhum build verde em {REPO}@{branch} ({q.stderr.strip()[:200]})")
+    run = runs[0]
+    with tempfile.TemporaryDirectory() as tmp:
+        d = subprocess.run(["gh", "run", "download", str(run["databaseId"]), "--repo", REPO, "-D", tmp],
+                           capture_output=True, text=True)
+        if d.returncode != 0:
+            die("falha ao baixar os artefatos: " + d.stderr.strip()[:300])
+        uf2s = list(pathlib.Path(tmp).rglob("*.uf2"))
+        if not uf2s:
+            die("o build não tem .uf2")
+        dest = DEFAULT_DIR / "firmware"
+        if dest.exists():
+            shutil.rmtree(dest)
+        dest.mkdir(parents=True)
+        for f in uf2s:
+            shutil.copy2(f, dest / f.name)
+    shutil.rmtree(DEFAULT_DIR / "ota", ignore_errors=True)  # pacotes antigos não valem mais
+    print(f"build {run['headSha'][:7]} ({run['createdAt'][:16].replace('T', ' ')} UTC) — {run['displayTitle'][:70]}",
+          file=sys.stderr)
+    print(f"  {len(uf2s)} arquivo(s) em {dest}", file=sys.stderr)
+
+
 def send(side: str, pkg, scan: int):
-    pkg = pkg or DEFAULT_DIR / "ota" / f"crosses_{side}-ota.zip"
-    if not pkg.exists():
+    if pkg is None:
+        pkg = DEFAULT_DIR / "ota" / f"crosses_{side}-ota.zip"
         uf2 = DEFAULT_DIR / "firmware" / f"crosses_{side}-nice_nano_v2-zmk.uf2"
         if not uf2.exists():
-            die(f"não achei {pkg} nem {uf2}")
-        build_package(uf2, pkg)
+            die(f"não achei {uf2} (kb-ota fetch, ou send --latest)")
+        if not pkg.exists() or pkg.stat().st_mtime < uf2.stat().st_mtime:
+            build_package(uf2, pkg)  # pacote ausente ou mais velho que o .uf2
+    elif not pkg.exists():
+        die(f"não achei {pkg}")
     r = verify(pkg)
     print(f"{pkg.name}: {r['size']} bytes, CRC16 {r['crc']:#06x}", file=sys.stderr)
     helper = ble_helper()
@@ -210,13 +247,23 @@ def main():
     sd = sub.add_parser("send")
     sd.add_argument("side", choices=["left", "right"])
     sd.add_argument("--zip", type=pathlib.Path)
+    sd.add_argument("--latest", action="store_true", help="baixa o último build verde do CI antes de enviar")
+    sd.add_argument("--branch", default="36", help="branch do CI para --latest (padrão: 36)")
+    fe = sub.add_parser("fetch")
+    fe.add_argument("--branch", default="36")
     sd.add_argument("--scan", type=int, default=90, help="segundos procurando o teclado em modo OTA")
     a = ap.parse_args()
 
     # autoteste do CRC com o vetor padrão do CCITT-FALSE ("123456789" → 0x29B1)
     assert crc16_nordic(b"123456789") == 0x29B1 == binascii.crc_hqx(b"123456789", 0xFFFF)
 
-    if a.cmd == "send":
+    if a.cmd == "fetch":
+        fetch(a.branch)
+    elif a.cmd == "send":
+        if a.latest:
+            if a.zip:
+                die("--latest e --zip não combinam")
+            fetch(a.branch)
         send(a.side, a.zip, a.scan)
     elif a.cmd == "info":
         start, image, family = uf2_to_bin(a.uf2)

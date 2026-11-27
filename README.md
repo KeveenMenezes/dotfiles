@@ -137,7 +137,7 @@ The keyboard's bootloader (Adafruit nRF52) can take firmware over Bluetooth. The
 `Func` layer (top outer corner of each side) reboots **that half** into the bootloader's Bluetooth mode:
 ZMK's reset behavior with `type = 0xA8`, the bootloader's `DFU_MAGIC_OTA_RESET`.
 
-1. Get the CI firmware into `~/Downloads/firmware-crosses/firmware/` (`gh run download …`).
+1. `kb-ota fetch` downloads the latest green CI build of branch `36` (`--branch` for another) into `~/Downloads/firmware-crosses/firmware/`. Or skip this step: `kb-ota send right --latest` fetches and sends in one go.
 2. `kb-ota package` builds `~/Downloads/firmware-crosses/ota/crosses_{left,right}-ota.zip`. These are Nordic
    legacy DFU packages: the image from `0x26000`, device type `0x0052`, SoftDevice `0xFFFE` and CRC16,
    made with the Python standard library only. `kb-ota verify <zip>` checks a package.
