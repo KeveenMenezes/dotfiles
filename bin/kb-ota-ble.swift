@@ -8,7 +8,10 @@
 //   pacotes …1532 (write without response) · o bootloader anuncia "AdaDFU", sem pareamento
 //   1 START [0x01,0x04] + tamanhos (sd, bl, app: 3×u32 LE) no …1532 → resposta [0x10,0x01,0x01]
 //   2 INIT  [0x02,0x00] + init packet no …1532 + [0x02,0x01]      → resposta [0x10,0x02,0x01]
-//   3 PRN   [0x08, N u16]   (confirmação [0x11, bytes u32] a cada N pacotes)
+//   3 PRN   [0x08, N u16]   (confirmação [0x11, bytes u32] a cada N pacotes; N ≤ 8)
+//   falha → só desconectar. NUNCA [0x06] SYS_RESET: ele reinicia sem a marca de OTA e, sem app válido,
+//   o nice!nano volta no modo USB (sem DEFAULT_TO_OTA_DFU). Desconectado, o bootloader descarta a
+//   transferência após 6 min sem atividade (DFU_TIMEOUT_INTERVAL 360000) e reinicia de volta em OTA.
 //   4 FW    [0x03] + imagem em pacotes de 20 bytes                 → resposta [0x10,0x03,0x01]
 //   5 VALIDATE [0x04] (o bootloader confere o CRC16)               → resposta [0x10,0x04,0x01]
 //   6 ACTIVATE [0x05] → o bootloader grava e reinicia no firmware novo
@@ -21,7 +24,10 @@ let ctrlUUID = CBUUID(string: "00001531" + base)
 let pktUUID = CBUUID(string: "00001532" + base)
 
 let packetSize = 20  // múltiplo de 4 (o bootloader grava a flash em palavras de 32 bits)
-let prn: UInt16 = 10  // confirmação de recebimento a cada 10 pacotes
+// confirmação a cada 4 pacotes: a fila de recebimento do bootloader por BLE tem 8 posições
+// (hci_mem_pool_internal.h: RX_BUF_QUEUE_SIZE 8u) e a confirmação sai quando o pacote CHEGA,
+// não quando é gravado; com 10 a fila estourava ("operação falhou" no passo 3).
+let prn: UInt16 = 4
 
 func log(_ s: String) { FileHandle.standardError.write((s + "\n").data(using: .utf8)!) }
 func fail(_ s: String) -> Never { log("kb-ota: " + s); exit(1) }
@@ -40,7 +46,7 @@ let statusText: [UInt8: String] = [
 ]
 
 final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    enum Step { case scanning, connecting, waitStart, waitInit, sending, waitReceived, waitValidate, activating }
+    enum Step { case scanning, connecting, waitStart, waitInit, sending, waitReceived, waitValidate, activating, waitingTimeout }
     var central: CBCentralManager!
     var peripheral: CBPeripheral?
     var ctrl: CBCharacteristic?
@@ -48,7 +54,8 @@ final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var step = Step.scanning
     var offset = 0
     var sinceReceipt = 0
-    var lastPercent = -1
+    var lastPercent = -5
+    var attempt = 1
     var started = Date()
     let image: Data
     let initPacket: Data
@@ -81,7 +88,7 @@ final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func centralManager(_ c: CBCentralManager, didDiscover p: CBPeripheral, advertisementData ad: [String: Any], rssi: NSNumber) {
         let name = (ad[CBAdvertisementDataLocalNameKey] as? String) ?? p.name ?? ""
         let services = (ad[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]) ?? []
-        guard name == "AdaDFU" || services.contains(svcUUID) else { return }
+        guard step == .scanning, name == "AdaDFU" || services.contains(svcUUID) else { return }
         log("achei \"\(name.isEmpty ? "sem nome" : name)\" (RSSI \(rssi)); conectando…")
         step = .connecting
         peripheral = p
@@ -99,6 +106,7 @@ final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             log(String(format: "pronto: firmware gravado em %.0f s; a metade reiniciou com a versão nova", Date().timeIntervalSince(started)))
             exit(0)
         }
+        if step == .waitingTimeout { return }
         fail("a conexão caiu no meio (\(step)); a metade fica no bootloader: rode de novo ou use o cabo")
     }
 
@@ -138,7 +146,13 @@ final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
         guard b[0] == 0x10, b.count >= 3 else { return }
         let (op, status) = (b[1], b[2])
-        guard status == 1 else { fail("o bootloader respondeu erro no passo \(op): \(statusText[status] ?? "código \(status)")") }
+        if op == 0x01 && status == 2 && attempt == 1 {
+            // transferência anterior pela metade: reinicia o bootloader e tenta de novo
+            attempt += 1
+            waitBootloaderTimeout()
+            return
+        }
+        guard status == 1 else { abort("o bootloader respondeu erro no passo \(op): \(statusText[status] ?? "código \(status)")") }
         switch (op, step) {
         case (0x01, .waitStart):
             step = .waitInit
@@ -187,6 +201,35 @@ final class DFU: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             }
         }
         if offset >= image.count { step = .waitReceived }
+    }
+
+    /// Falha depois de conectado: só desconecta (ver o cabeçalho: SYS_RESET derrubaria o modo OTA).
+    func abort(_ msg: String) -> Never {
+        if let p = peripheral { central.cancelPeripheralConnection(p) }
+        RunLoop.main.run(until: Date().addingTimeInterval(1))
+        fail(msg + "\n  o bootloader descarta essa transferência sozinho após 6 min sem atividade e volta ao modo OTA;"
+            + "\n  rode `kb-ota send` de novo depois disso (ou na hora: ele espera e repete sozinho)")
+    }
+
+    /// "Estado inválido" no início: desconecta, espera o bootloader zerar (6 min) e procura de novo.
+    func waitBootloaderTimeout() {
+        step = .waitingTimeout
+        if let p = peripheral { central.cancelPeripheralConnection(p) }
+        offset = 0; sinceReceipt = 0; lastPercent = -5
+        ctrl = nil; pkt = nil; peripheral = nil
+        let wait = 390
+        log("o bootloader está com uma transferência anterior pela metade; ele a descarta após 6 min sem atividade.")
+        for m in stride(from: 60, to: wait, by: 60) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(m)) { log("  aguardando… \((wait - m) / 60 + 1) min") }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(wait)) {
+            self.step = .scanning
+            log("procurando de novo…")
+            self.central.scanForPeripherals(withServices: nil, options: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
+                if self.step == .scanning { fail("o bootloader não voltou a anunciar; aperte o reset da metade duas vezes e use o cabo") }
+            }
+        }
     }
 
     func writeCtrl(_ bytes: [UInt8]) { peripheral?.writeValue(Data(bytes), for: ctrl!, type: .withResponse) }

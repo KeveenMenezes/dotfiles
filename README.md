@@ -147,8 +147,12 @@ ZMK's reset behavior with `type = 0xA8`, the bootloader's `DFU_MAGIC_OTA_RESET`.
    20-byte packets with receipts every 10 → validate (CRC16) → activate. Without a Mac, the
    **nRF Connect** phone app (DFU) also takes the zip.
 
-If a transfer fails, the half stays in the bootloader: try again, or use the cable
-(double-tap reset, copy the `.uf2`). The cable is needed once, to install a firmware that has the `OTA` key.
+If a transfer fails, the half stays in the bootloader's Bluetooth mode. After 6 minutes without
+activity, the bootloader drops the broken transfer and restarts in Bluetooth mode
+(`DFU_TIMEOUT_INTERVAL`). `kb-ota send` waits for that by itself when it finds a half-finished
+transfer. It never sends the DFU "system reset" command: that reboots without the OTA flag and,
+with no valid app, the nice!nano comes back in USB mode (cable only). Receipts every 4 packets:
+the bootloader's BLE receive queue has 8 slots. The cable is needed once, to install a firmware that has the `OTA` key.
 
 ## Tasks
 
