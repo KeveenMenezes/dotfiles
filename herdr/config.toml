@@ -10,6 +10,7 @@ onboarding = false
 [theme]
 name = "terminal"
 
+auto_switch = false
 [theme.custom]
 panel_bg = "reset"
 sidebar_bg = "reset"
@@ -104,7 +105,7 @@ height = 6
 [[keys.command]]
 key = "prefix+ctrl+k"
 type = "popup"
-command = "~/.local/bin/keymap-view"
+command = "PATH=$HOME/.local/bin:/opt/homebrew/bin:$PATH ~/.local/bin/keymap-view"
 description = "mapa do teclado"
 width = "95%"
 height = 24
@@ -116,6 +117,14 @@ key = "prefix+ctrl+r"
 type = "plugin_action"
 command = "keveen.workflow.current-pr"
 description = "PR do branch atual"
+
+# "agente notif." do layer Fluxo: substitui o open_notification_target padrão, que só age sobre um
+# toast do herdr na tela (aqui as notificações vão para o macOS)
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "keveen.workflow.attention"
+description = "agente que precisa de você"
 
 [[keys.command]]
 key = "prefix+f"

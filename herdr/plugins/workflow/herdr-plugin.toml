@@ -1,6 +1,7 @@
 # Plugin local do herdr (linkado pelo install.sh: herdr plugin link <este diretório>)
 #   - Ctrl+clique num link de PR/issue do GitHub: abre o preview em popup (gh) em vez do navegador
 #   - prefix+ctrl+r: PR do branch da pane atual, no mesmo popup
+#   - prefix+o: foca o agente bloqueado (ou pronto e não visto) há mais tempo
 #   - worktree.created: copia os arquivos locais ignorados (.env, .envrc, *.local…) da worktree
 #     principal para a nova e roda direnv allow
 #   - startup: mantém ~/.claude/skills/herdr/SKILL.md igual ao `herdr --skill` da versão instalada
@@ -28,6 +29,11 @@ id = "current-pr"
 title = "PR do branch atual"
 contexts = ["workspace"]
 command = ["bash", "github-open.sh", "--current"]
+
+[[actions]]
+id = "attention"
+title = "Agente que precisa de você (bloqueado, depois pronto)"
+command = ["bash", "attention.sh"]
 
 [[actions]]
 id = "sync-skill"
